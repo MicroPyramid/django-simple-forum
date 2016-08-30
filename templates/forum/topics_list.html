@@ -1,0 +1,30 @@
+{% load endless %}
+{% paginate topic_list %}
+
+{% for topic in topic_list %}
+  <div class="topic_block">
+    <div class="topic_title">
+    <a href="#">{{ topic.title }}</a>
+    </div>
+    <div class="topic_options">
+     <span class="category"><a href="#" class="gaming">{{ topic.category.title }} </a></span><span class="activity">Updated on {{ topic.updated_on }}</span>
+    <span class="reply"><a href="#"><i class="fa fa-reply"></i>Replies 123 </a></span>
+    <span class="views"><a href="#"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </a></span>
+    <span class="likes"><a href="#"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes {{ topic.no_of_likes }} </a></span>
+    </div>
+    <div class="topic_users">
+      <ul class="users_list">
+        <li><a href="#"><img src="http://newwallpapershd.com/wp-content/uploads/2014/10/3D-Birds-Live-Wallpaper-App-for-Android.jpg"></a></li>
+         <li><a href="#"><img src="http://4.bp.blogspot.com/-BItXd_Lt-5I/VdtyEROhPwI/AAAAAAAAEEs/tE4ZzobMb3o/s1600/beautiful%2Bbirds%2Bwallpapers%2Bfree%2Bdownload%2B%25285%2529.jpg"></a></li>
+         <li><a href="#"><img src="http://www.magazinefuse.com/wp-content/uploads/2015/07/20_Birds-of-Paradise-4340x2718-1024x640.jpg"></a></li>
+         <li><a href="#"><img src="http://www.magazinefuse.com/wp-content/uploads/2015/07/1-birds_pcheloedki-1920x1200-1024x640.jpg"></a></li>
+          <li><a href="#"><img src="http://widewallpaper.info/wp-content/uploads/2016/02/COOL-WALLPAPER-HIGH-DEFINITION-WLF1009.jpg"></a></li>
+         <li><a href="#"><img src="http://www.hdwallpaperspop.com/wp-content/uploads/2016/03/garfield-cool-hd-wallpaper.jpeg"></a></li>
+      </ul>
+    </div>
+     <br clear="all">
+  </div>
+{% endfor %}
+
+<div class="pagination">
+    {% show_pages %}</div>

@@ -1,0 +1,109 @@
+{% extends 'dashboard/dashboard_base.html' %}
+{% block stage %}
+<style type="text/css">
+  .sub_item_block{
+  display: none;
+  }
+</style>
+
+<div class="content">
+<section id='job_detail'>
+  <div class="job_description_wrap">
+    <div class="job_details">
+      <!-- post details -->
+      <div class="profile_individual">
+        <div class="title_profile">
+          <h4>Category Details</h4>
+        </div>
+        <div class='specific_detail'>
+          <div class="left_div">
+            <div class="tile_each">
+              <label>Title: </label>
+              <span class="description">
+              <span>{{ category.title }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>Is Votable: </label>
+              <span class="description">
+              <span>{{ category.is_votable }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+          <div class="right_div">
+            <div class="tile_each">
+              <label>Color: </label>
+              <span class="description">
+              <span>{{ category.color }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>Is Active: </label>
+              <span class="description">
+              <span>{{ category.is_active }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+          <div class="left_div">
+            <div class="tile_each">
+              <label>Created By: </label>
+              <span class="description">
+              <span>{{ category.created_by }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+      <div class="list items">
+      {% if category.topic_set.all %}
+        <h4>Topics({{category.topic_set.all|length}})</h4>
+        <table class="item_table table table-hover table-bordered" id="example_item">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>No Of Likes</th>
+                  <th>No Of Users</th>
+                  <th>No Of Votes</th>
+                  <th>No Of Comments</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody class="overflow:scroll;">
+                {% for topic in category.topic_set.all %}
+                <tr class="">
+                  <td>{{ topic.id }}</td>
+                  <td>{{ topic.title }}</td>
+                  <td>{{ topic.category.title }}</td>
+                  <td>{{ topic.status }}</td>
+                  <td>{{ topic.no_of_likes }}</td>
+                  <td>{{ topic.get_topic_users|length }}</td>
+                  <td>{{ topic.no_of_votes }}</td>
+                  <td>{{ topic.topic_comments.all|length }}</td>
+                  <td><a href="{% url "django_simple_forum:topic_detail" topic.slug %}" class=""><i class="fa fa-eye view"></i></a><a href="{% url "django_simple_forum:edit_category" topic.slug %}" class=""><i class="fa fa-edit edit"></i></a><a href="#" data-href="{% url "django_simple_forum:delete_topic" topic.slug %}" class="delete-topic"><i class="fa fa-trash delete"></i></a></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+        </table>
+      {% else %}
+        <h4>No Topics Available for record</h4>
+      {% endif %}
+      </div>
+      <!--/ post details -->
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script type="text/javascript">
+
+</script>
+{% endblock %}

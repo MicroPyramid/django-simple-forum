@@ -1,0 +1,149 @@
+body {
+  height: 100%;
+  position: relative;
+  font-family: 'Poppins', sans-serif;
+  color: #bbdefb;
+  font-size: 13px;
+  line-height: 20px;
+  min-width: 998px;
+  border-top: 3px solid #919191;
+  background: #FE3554;
+}
+.mar-right {
+  margin-right: 0;
+}
+.mar-left {
+  margin-left: 0;
+}
+.mar-r-l {
+  margin-left: 0;
+  margin-right: 0;
+}
+.pad_lr_0 {
+  padding-left: 0;
+  padding-right: 0;
+}
+/*login*/
+.login {
+  margin-top: 100px;
+  text-align: center;
+}
+.login .text {
+  float: left;
+  min-width: 100%;
+  margin-bottom: 0px;
+  font-size: 23px;
+  color: white;
+}
+.login .text .login_page_heading {
+  color: #ffffff;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 50px;
+  letter-spacing: 1px;
+}
+.login #sign_in {
+  padding-top: 25px;
+  width: 70%;
+  padding: 0px 0;
+  background: #fff;
+  margin: 0px auto;
+  border-radius: 3px;
+  border: none;
+  box-shadow: 7px 7px 1px #dc3750;
+}
+.login #sign_in .content-group {
+  padding: 30px 0px;
+  padding-bottom: 0;
+  color: #2b3840;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 40px;
+}
+.login #sign_in .content-group small {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+}
+.login #sign_in .form-group {
+  margin-bottom: 9px;
+  margin-top: 12px;
+  width: 90%;
+  margin: 0 auto;
+}
+.login #sign_in .form-group .input-group {
+  position: relative;
+  display: table;
+  margin-bottom: 15px;
+  width: 100%;
+  border-collapse: separate;
+}
+.login #sign_in .form-group .input-group .input-group-addon {
+  position: absolute;
+  height: 100%;
+  width: 36px;
+  border-radius: 0;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  background: none;
+  padding-top: 11px;
+}
+.login #sign_in .form-group .input-group .input-group-addon i {
+  color: #FE3554;
+}
+.login #sign_in .form-group .input-group .form-control {
+  width: inherit;
+  background: transparent;
+  padding-left: 40px;
+  box-shadow: none;
+  height: 40px;
+  font-size: 13px;
+}
+.login #sign_in .remember {
+  padding-left: 20px;
+}
+.login #sign_in .remember label {
+  display: block;
+  margin-top: 0px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #666;
+}
+.login #sign_in .forgot {
+  padding-right: 20px;
+}
+.login #sign_in .forgot a {
+  color: #FE3554;
+}
+.login #sign_in .button_row_login button {
+  width: 100%;
+  font-size: 15px;
+  height: 41px;
+  margin-bottom: 25px;
+  background: #2b3840;
+  color: white;
+  border: none;
+  margin: 0;
+  font-weight: 500;
+  margin-top: 25px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  outline: none;
+}
+.login #sign_in .button_row_login button i {
+  padding-right: 6px;
+}
+.login #sign_in .button_row_login button:hover {
+  color: #E87C7C
+          background: white;
+}
+/*login*/
+input[type=checkbox],
+input[type=radio] {
+  margin: 0;
+  line-height: normal;
+  vertical-align: middle;
+}

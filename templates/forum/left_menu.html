@@ -1,0 +1,51 @@
+{% load forum_tags %}
+<div class="main_right_container col-md-3 col-md-push-9 col-sm-3 col-sm-push-9 col-sm-4  col-xs-12 ">
+             <div class="fixed_right">
+               <div class="panel panel-default right_panel">
+                <div class="panel-heading">
+                  <h3 class="panel-title all_cat">All Categories <span class="pull-right hidden-md hidden-sm hidden-lg"><i class="fa fa-chevron-down" aria-hidden="true"></i></span></h3>
+                </div>
+                <div class="panel-body off">
+                  <ul class="category_items">
+                    {% get_categories as categories %}
+                    {% for category in categories %}
+                    <li class="category_item"><a href="{% url "django_simple_forum:forum_category_detail" category.slug %}" class="disclosure" style="background:{{category.color}}!important;"> {{ category.title }} </a></li>
+                    {% endfor %}
+                    <li class="category_item"><a href="{% url "django_simple_forum:forum_categories" %}" class="disclosure"> All </a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="panel panel-default right_panel">
+                <div class="panel-heading">
+                  <h3 class="panel-title all_cat">All Tags  <span class="pull-right hidden-md hidden-sm hidden-lg"><i class="fa fa-chevron-down" aria-hidden="true"></i></span></h3>
+                </div>
+                <div class="panel-body off">
+                  <ul class="category_tags">
+                    {% get_tags as tags %}
+                  {% for tag in tags %}
+                    <li class="tag_item"><a href="{% url "django_simple_forum:forum_tags_detail" tag.slug %}">{{ tag.title }}</a>
+                  {% endfor %}
+                  </li>
+                  <li class="tag_item"><a href="{% url "django_simple_forum:forum_tags" %}">All Tags</a>
+                  </ul>
+                </div>
+              </div>
+              {% if badges %}
+              <div class="panel panel-default right_panel">
+                <div class="panel-heading">
+                  <h3 class="panel-title all_cat">ALl Badges  <span class="pull-right hidden-md hidden-sm hidden-lg"><i class="fa fa-chevron-down" aria-hidden="true"></i></span></h3>
+                </div>
+                <div class="panel-body off">
+                  <ul class="badges">
+                  {% get_badges as badges %}
+                  {% for badge in badges %}
+                    <li class="badge_item"><a class="testlink" href="">{{ badge.title }}<span class="badge">{{ badge.get_users|length }}</span></a></li>
+                  {% endfor %}
+                    <li class="badge_item"><a href="{% url "django_simple_forum:forum_badges" %}" class="all">All Badges </a></li>
+                  </ul>
+                </div>
+              </div>
+              {% endif %}
+             </div>
+          </div>
+

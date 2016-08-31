@@ -40,7 +40,8 @@ Installation Procedure
     INSTALLED_APPS = [
        '..................',
        'compressor',
-       'django-simple-forum.django-simple-forum',
+       'simple_pagination',
+       'django-simple-forum',
        '..................'
     ]
 

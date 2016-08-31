@@ -50,7 +50,7 @@ setup(
         'django-storages',
         'microurl',
         'boto',
-        'sendgrid'
+        'sendgrid',
         'sorl-thumbnail==12.4a1'
     ],
 )

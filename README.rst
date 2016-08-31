@@ -18,7 +18,6 @@ Modules used:
     * Microurl >=3.6.1
     * Boto == 2.40.0
     * Sendgrid == 2.2.1
-    * django-simple-pagination == 1.1.4
 
 
 Installation Procedure
@@ -28,7 +27,7 @@ Installation Procedure
 
     pip install django-simple-forum
 
-    		(or)
+            (or)
 
     git clone git://github.com/micropyramid/django-simple-forum.git
 
@@ -41,7 +40,6 @@ Installation Procedure
     INSTALLED_APPS = [
        '..................',
        'compressor',
-       'simple_pagination',
        'django-simple-forum.django-simple-forum',
        '..................'
     ]

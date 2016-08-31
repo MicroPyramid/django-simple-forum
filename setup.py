@@ -51,5 +51,6 @@ setup(
         'microurl',
         'boto',
         'sendgrid'
+        'sorl-thumbnail==12.4a1'
     ],
 )

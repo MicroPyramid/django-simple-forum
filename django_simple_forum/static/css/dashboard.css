@@ -1,0 +1,323 @@
+body {
+  height: 100%;
+  position: relative;
+  font-family: 'Poppins', sans-serif;
+  color: #bbdefb;
+  font-size: 13px;
+  padding-top: 50px;
+  line-height: 20px;
+  min-width: 998px;
+  background: #f9f9f9;
+}
+.mt {
+  padding: 0px;
+  margin: 0px;
+}
+.mar-right {
+  margin-right: 0;
+}
+.mar-left {
+  margin-left: 0;
+}
+.mar-r-l {
+  margin-left: 0;
+  margin-right: 0;
+}
+.pad_lr_0 {
+  padding-left: 0;
+  padding-right: 0;
+}
+.form-control {
+  width: inherit;
+  background: transparent;
+  padding-left: 10px;
+  box-shadow: none;
+  height: 40px;
+  font-size: 13px;
+}
+.logo {
+  height: 50px;
+  margin-top: 0px;
+  padding: 15px 0px 0px 10px;
+  color: white;
+  font-weight: 400;
+  loat: left;
+  background: #fff;
+  box-shadow: 0 0 13px rgba(0, 0, 0, 0.13);
+  margin-bottom: 0px;
+  width: 100%;
+  color: #FE3554;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 1px;
+  position: fixed;
+  top: 0;
+  z-index: 99;
+}
+.menu {
+  padding-left: 0px;
+  width: 200px;
+  background: #2b3840;
+  position: fixed;
+  height: 100%;
+  top: 0;
+  padding-top: 50px;
+}
+.menu .nav li .dropdown-menu {
+  left: 200px;
+  padding: 0px 0px 0px;
+  margin: 0px 0 0;
+  background: #fff;
+  top: 0;
+}
+.menu .nav li a {
+  font-size: 12px;
+  text-decoration: none;
+  color: #9ea1a2;
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #39464e;
+}
+.menu .nav li a:hover {
+  color: #fff;
+  background: #FE3554;
+  border-radius: 0;
+}
+.menu .nav li a i {
+  padding-right: 4px;
+  font-size: 15px;
+  float: right;
+}
+.menu .nav li.active a {
+  background: #FE3554;
+  border-radius: 0;
+  color: #fff;
+}
+.menu .nav li.active a:hover {
+  color: #FE3554;
+  border-radius: 0;
+  background: white;
+}
+.menu .nav li.dropdown.open a {
+  background: #fff;
+  color: #FE3554;
+  border-radius: 0;
+}
+.menu .nav li.dropdown.open .dropdown-menu li a {
+  background: #2b3840;
+  color: #9ea1a2;
+  padding: 10px;
+  border-radius: 0;
+  border-bottom: 0;
+  border-bottom: 1px solid #39464e;
+}
+.menu .nav li.dropdown.open .dropdown-menu li a:hover {
+  background-color: #FE3554;
+  color: #fff;
+}
+.user_details {
+  padding: 0px;
+  margin: 0px;
+}
+.content {
+  margin-left: 210px;
+  color: #777;
+}
+.content .list {
+  margin-top: 18px;
+  padding: 0px 21px 0px 15px;
+}
+.content .list .list-header {
+  margin-bottom: 10px;
+}
+.content .list .list-header label {
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: 1px;
+  width: 100%;
+  color: #2b3840;
+}
+.content .list .list-header label span a {
+  display: inline-block;
+  background: #FE3554;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  color: #fff;
+  padding: 4px 10px;
+}
+.content .list .list-header label span a i {
+  display: inline-block;
+  margin-right: 6px;
+}
+.content .list .list-header .new {
+  float: right;
+  padding: 6px;
+  background: salmon;
+  margin-bottom: 6px;
+  padding-right: 18px;
+  padding-left: 18px;
+  margin-right: 24px;
+  font-size: 14px;
+}
+.content .list .list-header .new a {
+  color: white;
+}
+.content .list .list-header .new a i {
+  padding-right: 5px;
+}
+.content .list table th {
+  background: #eee;
+  border: 1px solid #ccc;
+  font-weight: bold;
+  color: darkcyan;
+}
+.content .list table tbody td a i {
+  padding: 6px;
+  padding-top: 7px;
+  border-radius: 3px;
+  background: #ddd;
+  color: #fff;
+  font-size: 12px;
+  border: 1px solid #333;
+  margin-left: 5px;
+}
+.content .list table tbody td a i.edit {
+  background: #65C178;
+  border: none;
+}
+.content .list table tbody td a i.edit:hover {
+  background: #3e9b52;
+}
+.content .list table tbody td a i.delete {
+  background: #D53139;
+  border: none;
+}
+.content .list table tbody td a i.delete:hover {
+  background: #9a1f25;
+}
+.content .list table tbody td a i.view {
+  background: #FFBF00;
+  border: none;
+}
+.content .list table tbody td a i.view:hover {
+  background: #b38600;
+}
+.content .new {
+  width: 70%;
+  margin: 0px auto;
+  margin-top: 80px;
+  background: #fff;
+  box-shadow: 4px 3px 13px #e8e3e3;
+}
+.content .new .new-header {
+  margin-bottom: 10px;
+}
+.content .new .new-header label {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 1px;
+  width: 100%;
+  color: #ffffff;
+  background: #a2a2a2;
+  padding: 6px 10px;
+}
+.content .new .new-user {
+  padding: 20px;
+}
+.content .new .new-user .form-group {
+  width: 100%;
+  margin: 0px;
+  margin-bottom: 15px;
+}
+.content .new .new-user .control-label {
+  text-align: left;
+  color: #2b3840;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+.content .new .new-user .form-control {
+  width: 100%;
+}
+.content .new .new-user .save_buttons button {
+  display: inline-block;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  color: #fff;
+  padding: 6px 12px;
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 1px;
+  border-radius: 0;
+  border: none;
+}
+.content .new .new-user .save_buttons button.submit {
+  background: #FE3554;
+}
+.content .new .new-user .save_buttons button.cancel {
+  background: #2b3840;
+}
+.nav-stacked > li + li {
+  margin-top: 0;
+  margin-left: 0;
+}
+/* user_table starts here */
+.user_table .table-responsive {
+  -moz-box-shadow: 0 0 5px #e8e3e3;
+  -webkit-box-shadow: 0 0 5px#e8e3e3;
+  box-shadow: 4px 3px 13px #e8e3e3;
+}
+.user_table .table-responsive .table {
+  margin-bottom: 0;
+}
+.user_table .table-responsive .table thead tr th {
+  background-color: #fff;
+  font-size: 12px;
+  color: #2b3840;
+  font-weight: 500;
+}
+.user_table .table-responsive .table tbody tr td {
+  background-color: #fff;
+  font-size: 12px;
+}
+/* user_table ends here */
+.error{
+  color: red;
+}
+.tab_content {
+  border: 1px dotted #e1e1e1;
+  margin: 13px;
+  display: none;
+  margin-top: 0px;
+  width: 98%;
+  margin: 0px auto;
+  margin-top: 50px;
+  padding: 15px;
+  background: #fdfdfd;
+  border: 1px dotted #ddd;
+  margin-bottom: 10px;
+  margin-top: 30px!important;
+}
+.tab_button_row {
+  padding: 13px;
+}
+.tab_button_row .button {
+  cursor: pointer;
+  padding: 6px 18px;
+  background: #e1e1e1;
+  border: none;
+  color: #000;
+  margin-right: 5px;
+}
+.tab_button_row .button i {
+  padding-right: 5px;
+}
+.specific_detail{
+    border: 1px dotted #ddd;
+    padding: 15px;
+    margin-bottom: 8px;
+}

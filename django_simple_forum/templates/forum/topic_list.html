@@ -1,0 +1,45 @@
+{% extends 'forum/base.html' %}
+{% load thumbnail %}
+{% load paginate %}
+{% block stage %}
+<div class="main_container">
+     <div class="container">
+        <div class="row middle_container">
+          {% include 'forum/left_menu.html' %}
+          {% paginate 20 topic_list %}
+          <div class="main_left_container col-md-9 col-md-pull-3 col-sm-9 col-sm-pull-3 col-sm-8 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <div class="topic_container">
+                 <!-- topic_block starts here -->
+                  <h3 class="create_topic_heading">All Topics <span class="pull-right sort_options">{% if request.user.is_authenticated %}<a href="{% url "django_simple_forum:new_topic" %}">New Topic</a>{% endif %}</span></h3>
+                 {% for topic in topic_list %}
+                  <div class="topic_block">
+                    <div class="topic_title">
+                    <a href="{% url "django_simple_forum:view_topic" topic.slug %}">{{ topic.title }}</a>
+                    </div>
+                    <div class="topic_options">
+                     <span class="category"><a href="#" class="gaming">{{ topic.category.title }} </a></span><span class="activity">Updated on {{ topic.updated_on }}</span>
+                    <span class="reply"><a href="#"><i class="fa fa-reply"></i>Replies 123 </a></span>
+                    <span class="views"><a href="#"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </a></span>
+                    <span class="likes"><a href="#"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes {{ topic.no_of_likes }} </a></span>
+                    </div>
+                    <div class="topic_users">
+                      <ul class="users_list">
+                        {% for user in topic.get_topic_users %}
+                        <li><a href="{% url "django_simple_forum:user_details" user.user.username %}" title="{{ user.user.username }}"><img src="{% if user.profile_pic %}{% thumbnail user.profile_pic "100x100" upscale=True padding=True %}{% else %}//d2pt99vxm3n8bc.cloudfront.net/static/dummy.jpg{% endif %}"></a></li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                     <br clear="all">
+                  </div>
+                {% endfor %}
+                {% show_pages %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+     </div>
+   </div>
+{% endblock %}

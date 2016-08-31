@@ -1,0 +1,99 @@
+{% extends 'dashboard/dashboard_base.html' %}
+{% load paginate %}
+{% block stage %}
+<div class="content">
+  <div class="list">
+    <div class="list-header">
+      <label>Topics</label>
+    </div>
+    <div class="results-slct-items row mt">
+      <div class="col-md-6 col-xs-6 result-items">
+      </div>
+      {% paginate 10 topic_list %}
+      {% show_pageitems %}
+      <form name="filter_form" id="filter_form" method='post'>
+        {% csrf_token %}
+        <input type="text" name="search_text" id="search_text" value="{{ request.POST.search_text }}"/>
+        <input type="hidden" name="filter_per_page" id="filter_per_page" value="{{ filter_per_page }}"/>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+    {% if topic_list %}
+        <div class="user_table">
+      <div class="table-responsive">
+
+    <table style="overflow:scroll;" class="sub_items table table-hover table-bordered">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Title</th>
+          <th>Created By</th>
+          <th>No Of Likes</th>
+          <th>No Of Users</th>
+          <th>No Of Votes</th>
+          <th>No Of Comments</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody class="overflow:scroll;">
+        {% for topic in topic_list %}
+        <tr class="sub_item_trs sub_item_{{ item.item_key }}">
+          <td>{{ topic.id }}</td>
+          <td>{{ topic.title }}</td>
+          <td>{{ topic.created_by }}</td>
+          <td>{{ topic.no_of_likes }}</td>
+          <td>{{ topic.get_topic_users|length }}</td>
+          <td>{{ topic.no_of_votes }}</td>
+          <td>{{ topic.topic_comments.all|length }}</td>
+          <td><a href="{% url "django_simple_forum:topic_detail" topic.slug %}" class=""><i class="fa fa-eye view"></i></a>
+            <a data-href="{% url "django_simple_forum:topic_status" topic.slug %}" class="topic-status" title="{% ifequal topic.status 'Draft' %}Draft{% endifequal %}{% ifequal topic.status 'Published' %}Published{% endifequal %}{% ifequal topic.status 'Disabled' %}Disabled{% endifequal %}">{% ifequal topic.status 'Draft' %}<i class='fa fa-floppy-o draft view'></i>{% endifequal %}{% ifequal topic.status 'Published' %}<i class='fa fa-newspaper-o published edit'></i>{% endifequal %}{% ifequal topic.status 'Disabled' %}<i class='fa fa-exclamation-triangle disabled'></i>{% endifequal %}</a>
+            <a href="{% url "django_simple_forum:edit_category" topic.slug %}" class=""><i class="fa fa-edit edit"></i></a><a href="#" data-href="{% url "django_simple_forum:delete_topic" topic.slug %}" class="delete-topic"><i class="fa fa-trash delete"></i></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% show_pages %}
+    </div>
+    </div>
+    <nav class="overview-paging">
+    </nav>
+    {% else %}
+    No Topics Available in database
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script type="text/javascript">
+  $('.delete-topic').click(function(e){
+  e.preventDefault();
+  href = $(this).attr('data-href');
+  if (!confirm('Do you want to delete Topic?'))
+    return;
+  $.post(href, $("form#jobform").serialize(), function(data) {
+      if (data.error) {
+        alert(data.response);
+      } else {
+        alert("Topic Deleted Successfully")
+        window.location = '.';
+      }
+    }, 'json');
+  });
+  $('.topic-status').click(function(e){
+  e.preventDefault();
+  href = $(this).attr('data-href');
+  if (!confirm('Do you want to change the status of topic?'))
+    return;
+  $.post(href, $("form#jobform").serialize(), function(data) {
+      if (data.error) {
+        alert(data.response);
+      } else {
+        alert("Topic Status Changed Successfully")
+        window.location = '.';
+      }
+    }, 'json');
+  });
+
+</script>
+{% endblock %}

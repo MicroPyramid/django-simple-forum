@@ -1,0 +1,369 @@
+{% load compress %}
+{% load static %}
+{% load forum_tags %}
+{% load thumbnail %}
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Django Simple Forum</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link href='https://fonts.googleapis.com/css?family=Poppins:400,300,500,600,700' rel='stylesheet' type='text/css'>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
+
+      {% compress css %}
+      <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/jquery.tagsinput.css" />
+      <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/forum.css">
+      <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-suggest.css">
+      {% endcompress %}
+   </head>
+   <body>
+   <header>
+      <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header pad_lr_0 col-md-3 col-sm-3 col-xs-4">
+          <a class="navbar-brand" href="{% url "django_simple_forum:topic_list" %}">Forum</a>
+        </div>
+        <div class="col-md-9 col-sm-9 col-xs-8 pad_lr_0 nav_right text-right">
+            <div class="row no_row_margin header_right">
+               <form action="" class="search-form">
+                   <div class="form-group has-feedback">
+                     <label for="search" class="sr-only">Search</label>
+                     <input type="text" class="form-control" name="search" id="search" placeholder="search">
+                     <span class="glyphicon glyphicon-search form-control-feedback"></span>
+                  </div>
+               </form>
+
+              <ul class="login_block">
+              {% if not request.user.is_authenticated %}
+                <li><a href="#" data-toggle="modal" data-target="#demo-1"><i class="fa fa-sign-in"></i> <span>Sign In</span></a></li>
+                <li><a href="#" data-toggle="modal" data-target="#demo-2"><i class="fa fa-plus-circle"></i> <span>Sign Up</span></a></li>
+              {% else %}
+                <li><a href="#" data-toggle="modal" data-target="#demo-4"><i class="fa fa-sign-out"></i> <span>Change Password</span></a></li>
+                <li><a href="{% url "django_simple_forum:out" %}"><i class="fa fa-sign-out"></i> <span>Sign Out</span></a></li>
+                <li><a class='user_profile_pic' href="{% url "django_simple_forum:user_profile" %}"><img src="{% if request.user|user_profile_pic %}{% thumbnail request.user|user_profile_pic "100x100" upscale=True padding=True %}{% else %}//d2pt99vxm3n8bc.cloudfront.net/static/dummy.jpg{% endif %}" class="profile_pic"></img></a></li>
+              {% endif %}
+              </ul>
+            </div>
+        </div>
+      </div>
+    </nav>
+   </header>
+
+   <!-- Modal -->
+    <div class="modal fade login_modal" id="demo-1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Login</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row login_row">
+              <div class="login_form col-md-7">
+                  <form name="loginform" id="loginform" method="post">
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Email address</label>
+                      <input type="email" class="form-control" placeholder="Email" id="username" name="username">
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputPassword1">Password</label>
+                      <input type="password" class="form-control" placeholder="Password" name="password" id='password'>
+                    </div>
+                    <button type="submit" class="btn btn-default">Login</button>
+                    <div class="forgot_create">
+                      <a href="#" data-toggle="modal" data-target="#demo-3" data-dismiss="modal">Forgot Password?</a>
+                      <a href="#" class="pull-right" data-toggle="modal" data-target="#demo-2" data-dismiss="modal">Don't have Account</a>
+                    </div>
+                  </form>
+              </div>
+              <div class="login_options col-md-5">
+                <ul>
+                  <li><a href="{% url "django_simple_forum:facebook_login" %}" class="facebook"><i class="fa fa-facebook"></i>Connect With Facebook</a></li>
+                  <!--<li><a href="#" class="twitter"><i class="fa fa-twitter"></i>Connect With Twitter</a></li>
+                  <li><a href="#" class="youtube"><i class="fa fa-youtube"></i>Connect With Youtube</a></li>-->
+                  <li><a href="{% url "django_simple_forum:google_login" %}" class="google-plus"><i class="fa fa-google-plus"></i>Connect With Google </a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+       <!-- Modal -->
+    <div class="modal fade login_modal" id="demo-2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Create Account</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row login_row">
+              <div class="login_form col-md-7">
+                  <form name="registerform" id="registerform" method="post">
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Email address</label>
+                      <input type="email" class="form-control" placeholder="Email" name='email' id="email">
+                    </div>
+                     <div class="form-group">
+                      <label for="exampleInputEmail1">User Name</label>
+                      <input type="text" class="form-control" placeholder="User Name" name='username' id="username">
+                    </div>
+                     <div class="form-group">
+                      <label for="exampleInputEmail1">Full Name</label>
+                      <input type="text" class="form-control" placeholder="Full Name" name='first_name' id="first_name">
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputPassword1">Password</label>
+                      <input type="password" class="form-control" placeholder="Password" name="password" id="password">
+                    </div>
+                    <button type="submit" class="btn btn-default">Create Account</button>
+                    <div class="forgot_create">
+                      <a href="#" data-toggle="modal" data-target="#demo-1" data-dismiss="modal">Existed Account ?<strong>Login </strong></a>
+                    </div>
+                  </form>
+              </div>
+              <div class="login_options col-md-5">
+                <ul>
+                  <li><a href="{% url "django_simple_forum:facebook_login" %}" class="facebook"><i class="fa fa-facebook"></i>Connect With Facebook</a></li>
+                  <li><a href="{% url "django_simple_forum:google_login" %}" class="google-plus"><i class="fa fa-google-plus"></i>Connect With Google </a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <!-- Modal -->
+    <div class="modal fade login_modal" id="demo-3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Forgot Password</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row login_row">
+              <div class="login_form col-md-12">
+                  <form name="forgotpasswordform" id="forgotpasswordform" method='post'>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Email address</label>
+                      <input type="email" class="form-control" placeholder="Email" name="email" id="forgot-email">
+                    </div>
+                    <button type="submit" class="btn btn-default forgot_btn">Submit Email</button>
+                    <div class="forgot_create">
+                      <a href="#" data-toggle="modal" data-target="#demo-1" data-dismiss="modal">Existed Account ?<strong>Login </strong></a>
+                    </div>
+                  </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade login_modal" id="demo-4" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Change Password</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row login_row">
+              <div class="login_form col-md-12">
+                  <form name="changepasswordform" id="changepasswordform" method='post'>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">New Password</label>
+                      <input type="password" class="form-control" placeholder="Enter Your New Password Here" name="newpassword" id="newpassword">
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Retype Password</label>
+                      <input type="password" class="form-control" placeholder="Enter Your New Password Here" name="retypepassword" id="retypepassword">
+                    </div>
+                    <button type="submit" class="btn btn-default forgot_btn">Change</button>
+                  </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% block stage %}
+    {% endblock %}
+
+   </body>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://malsup.github.com/jquery.form.js"></script>
+   <!-- Latest compiled and minified JavaScript -->
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+      <!-- ck editor -->
+    <script src="https://cdn.ckeditor.com/4.5.1/standard/ckeditor.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
+
+    {% compress js %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.tagsinput.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-suggest.js"></script>
+   <!-- select2 -->
+   <script>
+    $( document ).ready(function() {
+      $('#myModal').modal('hide');
+      $('#myModal').on('hidden', function () {
+        // Load up a new modal...
+        $('#myModal1').modal('show')
+      });
+      $(".select2").select2({
+        tags: true
+      });
+      $(".js-example-basic-single, .js-example-basic-single1").select2();
+    });
+   </script>
+
+   <!-- tags script -->
+  <script type="text/javascript">
+
+    function onAddTag(tag) {
+      alert("Added a tag: " + tag);
+    }
+    function onRemoveTag(tag) {
+      alert("Removed a tag: " + tag);
+    }
+
+    function onChangeTag(input,tag) {
+      alert("Changed a tag: " + tag);
+    }
+
+    $(function() {
+
+      $('#tags').tagsInput({width:'auto'});
+      $('#tags_2').tagsInput({
+        width: 'auto',
+        onChange: function(elem, elem_tags)
+        {
+          var languages = ['php','ruby','javascript'];
+          $('.tag', elem_tags).each(function()
+          {
+            if($(this).text().search(new RegExp('\\b(' + languages.join('|') + ')\\b')) >= 0)
+              $(this).css('background-color', 'yellow');
+          });
+        }
+      });
+      $('#tags_3').tagsInput({
+        width: 'auto',
+
+        //autocomplete_url:'test/fake_plaintext_endpoint.html' //jquery.autocomplete (not jquery ui)
+        autocomplete_url:'test/fake_json_endpoint.html' // jquery ui autocomplete requires a json endpoint
+      });
+
+// Uncomment this line to see the callback functions in action
+//      $('input.tags').tagsInput({onAddTag:onAddTag,onRemoveTag:onRemoveTag,onChange: onChangeTag});
+
+// Uncomment this line to see an input with no interface for adding new tags.
+//      $('input.tags').tagsInput({interactive:false});
+    });
+      $('form#registerform').submit(function(e){
+        e.preventDefault();
+        $.post('{% url "django_simple_forum:signup" %}', $('form#registerform').serialize(), function(data){
+          if(data.error){
+            console.log(data.response)
+
+            $('div.error').remove();
+            for (var key in data.response) {
+              console.log(key)
+              $('#registerform #' + key).after('<div class="error">' + data.response[key] + '</div>');
+            }
+          }
+          else{
+            alert("You have Successfully Registered !!!")
+            window.location = "{% url "django_simple_forum:topic_list" %}";
+          }
+        }, 'json');
+      });
+      $('form#loginform').submit(function(e){
+        e.preventDefault();
+        $.post('{% url "django_simple_forum:user_login" %}', $('form#loginform').serialize(), function(data){
+          if(data.error){
+            console.log(data.response)
+
+            $('div.error').remove();
+            for (var key in data.response) {
+              console.log(key)
+              $('#loginform #' + key).after('<div class="error">' + data.response[key] + '</div>');
+            }
+          }
+          else{
+            window.location = "{% url "django_simple_forum:topic_list" %}";
+          }
+        }, 'json');
+      });
+
+      $('form#forgotpasswordform').submit(function(e){
+        e.preventDefault();
+        $.post('{% url "django_simple_forum:forgot_password" %}', $('form#forgotpasswordform').serialize(), function(data){
+          if(data.error){
+            console.log(data.response)
+            $('div.error').remove();
+            if(data.message){
+              $('#forgotpasswordform #forgot-email').after('<div class="error">' + data.message + '</div>');
+            }
+            for (var key in data.response) {
+              $('#forgotpasswordform #forgot-' + key).after('<div class="error">' + data.response[key] + '</div>');
+            }
+          }
+          else{
+            window.location = "{% url "django_simple_forum:topic_list" %}";
+          }
+        }, 'json');
+      });
+      $('form#changepasswordform').submit(function(e){
+        e.preventDefault();
+        $.post('{% url "django_simple_forum:user_change_password" %}', $('form#changepasswordform').serialize(), function(data){
+          if(data.error){
+            console.log(data.response)
+            $('div.error').remove();
+            for (var key in data.response) {
+              $('#changepasswordform #' + key).after('<div class="error">' + data.response[key] + '</div>');
+            }
+          }
+          else{
+            window.location = "{% url "django_simple_forum:topic_list" %}";
+          }
+        }, 'json');
+      });
+      $(function () {
+        $('[data-toggle="popover"]').popover({
+           html: true,
+           content: function() {
+           return $('#popover-content').html();
+          }
+        })
+      });
+      $('.all_cat').click(function(){
+          $('.fixed_right .right_panel .panel-body').each(function( index ) {
+            $(this).slideUp('slow');
+            icon = $(this).siblings('.panel-heading').find('span i')
+            if (icon.hasClass('fa-chevron-up')){
+              icon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+            }
+          });
+          if($(this).find('span i').hasClass('fa-chevron-down')){
+            $(this).parent().siblings('.panel-body').slideDown('slow');
+            $(this).children('span').children('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+          }
+          else{
+           $(this).parent().siblings('.panel-body').slideUp('slow');
+           $(this).children('span').children('i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+          }
+      })
+
+
+  </script>
+    {% block extra_js %}
+    {% endblock %}
+
+  {% endcompress %}
+</html>

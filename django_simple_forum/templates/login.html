@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+{% load compress %}
+<html lang="en">
+<head>
+  <title>Django Simple Forum</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  {% compress css %}
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/login.css">
+  {% endcompress %}
+</head>
+<body>
+
+<body>
+  <div class="row">
+  <div class="container">
+      <div class="col-md-offset-2 col-md-8 col-md-offset-2 login">
+        <span class="text">
+          <span>Django Simple Forum</span>
+        </span>
+        <div class="clearfix"></div>
+        <form id="loginform" name="loginform" method="post">
+          {% csrf_token %}
+          <section id='sign_in' class="sign-in">
+              <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-addon"><i class="fa fa-envelope"></i></div>
+                <input type="text" class="form-control" name="email" placeholder="Enter Username">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <div class="input-group-addon"><i class="fa fa-lock"></i></div>
+                <input type="password" class="form-control" name="password" placeholder="Enter Password">
+              </div>
+            </div>
+            <div class="button_row_login">
+              <button class="sign_in_button" type="submit"><i class="fa fa-sign-in"></i>Login</button>
+            </div>
+          </section>
+        </form>
+      </div>
+  </div>
+  </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      $('form#loginform').submit(function(e){
+        e.preventDefault();
+        $.post('.', $('form#loginform').serialize(), function(data){
+          console.log(data)
+          if(data.error){
+            alert(data.response);
+          }
+          else{
+            window.location = ".";
+          }
+        }, 'json');
+      });
+    </script>
+</body>
+</html>

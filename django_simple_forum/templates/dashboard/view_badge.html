@@ -1,0 +1,69 @@
+{% extends 'dashboard/dashboard_base.html' %}
+{% block stage %}
+<style type="text/css">
+  .sub_item_block{
+  display: none;
+  }
+</style>
+
+<div class="content">
+<section id='job_detail'>
+  <div class="job_description_wrap">
+    <div class="job_details">
+      <!-- post details -->
+      <div class="profile_individual">
+        <div class="title_profile">
+          <h4>Badge Details</h4>
+        </div>
+        <div class='specific_detail'>
+          <div class="left_div">
+            <div class="tile_each">
+              <label>Title: </label>
+              <span class="description">
+              <span>{{ badge.title }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+      <div class="list items">
+      {% if badge.get_users %}
+        <h4>Users({{badge.get_users|length}})</h4>
+        <table class="item_table table table-hover table-bordered" id="example_item">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Email</th>
+                  <th>User Name</th>
+                  <th>No Of Used Votes(Up/Down)</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody class="overflow:scroll;">
+                {% for user in badge.get_users %}
+                <tr class="sub_item_trs sub_item_{{ item.item_key }}">
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ user.user.email }}</td>
+                  <td>{{ user.user.username }}</td>
+                  <td>{{ user.used_votes }}({{user.get_no_of_up_votes}}/{{user.get_no_of_down_votes}})</td>
+                  <td><a href="{% url "django_simple_forum:user_detail" user.user.id %}" class=""><i class="fa fa-eye view"></i></a><a href="{% url "django_simple_forum:edit_user" user.user.id %}" class=""><i class="fa fa-edit edit"></i></a><a href="#" data-href="{% url "django_simple_forum:user_status" user.user.id %}" class="user_status" title='{% if user.user.is_active %}InActive{%  else %}Active{% endif %}'>{% if user.user.is_active %}<i class="fa fa-times edit"></i>{% else %}<i class="fa fa-check edit"></i>{% endif %}</a><a href="#" data-href="{% url "django_simple_forum:delete_user" user.user.id %}" class="delete-user"><i class="fa fa-trash delete"></i></a></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+        </table>
+      {% else %}
+        <h4>No Users Available for record</h4>
+      {% endif %}
+      </div>
+      <!--/ post details -->
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script type="text/javascript">
+
+</script>
+{% endblock %}

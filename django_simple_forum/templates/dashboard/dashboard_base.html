@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+{% load compress %}
+<html lang="en">
+<head>
+  <title>Django Simple Forum</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/u/dt/dt-1.10.12/datatables.min.css"/>
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
+
+    {% compress css %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/dashboard.css">
+    {% endcompress %}
+</head>
+<body>
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class='header'>
+        <div class="logo">
+          <a href="{% url "django_simple_forum:topics" %}"><span class="text">Django Simple Forum</span></a>
+        </div>
+      </div>
+      <div class="menu">
+        <ul class="nav nav-pills nav-stacked">
+          <li>
+            <a class="dropdown-toggle" href="{% url "django_simple_forum:users" %}"><i class="fa fa-bookmark" aria-hidden="true"></i>Users
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-toggle" href="{% url "django_simple_forum:categories" %}"><i class="fa fa-briefcase" aria-hidden="true"></i>Categories
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-toggle" href="{% url "django_simple_forum:topics" %}"><i class="fa fa-suitcase" aria-hidden="true"></i>Topics
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-toggle" href="{% url "django_simple_forum:badges" %}"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>Badges
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-toggle" href="{% url "django_simple_forum:change_password" %}"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>Change Password
+            </a>
+          </li>
+          <li><a href="{% url "django_simple_forum:out" %}"><i class="fa fa-sign-out" aria-hidden="true"></i>Log Out</a></li>
+        </ul>
+      </div>
+    {% block stage %}
+    {% endblock %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/u/dt/dt-1.10.12/datatables.min.js"></script>
+    <script src="https://malsup.github.com/jquery.form.js"></script>
+    <script src="https://cdn.ckeditor.com/4.5.1/standard/ckeditor.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
+
+    {% compress js %}
+      <script src="{{ STATIC_URL }}js/jquery.form.js"></script>
+      <script src="{{ STATIC_URL }}js/main.js"></script>
+      <script type="text/javascript">
+        $("a[rel='page']").click(function(e){
+          e.preventDefault();
+          $('#filter_form').attr("action", $(this).attr("href"));
+          $('#filter_form').submit();
+        });
+        $("#pagination_per_page").change(function(e) {
+          var a = $("#pagination_per_page").val();
+          $("#filter_per_page").val(a);
+          $('#filter_form').submit();
+        });
+        $(document).ready(function(e){
+          var pathname = window.location.pathname;
+          atag = $('.menu a[href="'+pathname+'"]');
+          atag.parent().addClass("active");
+        });
+        $(".select2").select2({
+        tags: true
+      });
+      </script>
+
+      {% block extra_js %}
+      {% endblock %}
+    {% endcompress %}
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+{% extends 'forum/base.html' %}
+{% block stage %}
+<div class="main_container">
+   <div class="container">
+      <div class="row middle_container">
+        {% include 'forum/left_menu.html' %}
+          <div class="main_left_container col-md-9 col-md-pull-3 col-sm-9 col-sm-pull-3 col-sm-8 col-xs-12">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <!-- category section starts here-->
+           <div class="new_topic_container tags_container row">
+             <h3 class="create_topic_heading">All Tags</h3>
+              <form name="tagsform" id="tagsform" method="post">
+                <input type="hidden" name="alphabet_value" id="alphabet_value">
+                <button type="submit" style="display:none;"></button>
+              </form>
+
+             <!-- Tags_list starts here -->
+             <div class="tag_list">
+                <ul class="list-inline">
+                  <li><a href="#" class="all">All</a></li>
+                  <li><a href="#" class="a">A</a></li>
+                  <li><a href="#" class="b">B</a></li>
+                  <li><a href="#" class="c">C</a></li>
+                  <li><a href="#" class="d">D</a></li>
+                  <li><a href="#" class="e">E</a></li>
+                  <li><a href="#" class="f">F</a></li>
+                  <li><a href="#" class="g">G</a></li>
+                  <li><a href="#" class="h">H</a></li>
+                  <li><a href="#" class="i">I</a></li>
+                  <li><a href="#" class="j">J</a></li>
+                  <li><a href="#" class="k">K</a></li>
+                  <li><a href="#" class="l">L</a></li>
+                  <li><a href="#" class="m">M</a></li>
+                  <li><a href="#" class="n">N</a></li>
+                  <li><a href="#" class="o">O</a></li>
+                  <li><a href="#" class="p">P</a></li>
+                  <li><a href="#" class="q">Q</a></li>
+                  <li><a href="#" class="r">R</a></li>
+                  <li><a href="#" class="s">S</a></li>
+                  <li><a href="#" class="t">T</a></li>
+                  <li><a href="#" class="u">U</a></li>
+                  <li><a href="#" class="v">V</a></li>
+                  <li><a href="#" class="w">W</a></li>
+                  <li><a href="#" class="x">X</a></li>
+                  <li><a href="#" class="y">Y</a></li>
+                  <li><a href="#" class="z">Z</a></li>
+                </ul>
+             </div>
+             <!-- tags_list ends here -->
+                <!-- Discussion-create container starts here -->
+                  <div class="discussion-Tags-container">
+                    <div class="tags-block">
+                        <div class="row tag-list no_row_margin">
+                        {% for tag in tags %}
+                          <a href="{% url "django_simple_forum:forum_tags_detail" tag.slug %}">{{ tag.title }} <small>{{ tag.get_topics|length }}</small></a>
+                        {% endfor %}
+                        </div>
+                    </div>
+                  </div>
+                <!-- Discussion-create container ends here -->
+            </div>
+            <!-- category section ends here-->
+            </div>
+          </div>
+        </div>
+      </div>
+   </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script type="text/javascript">
+  $('.list-inline li a').click(function(e){
+    e.preventDefault();
+    $('#alphabet_value').val($(this).attr('class'));
+    $('#tagsform').submit();
+});
+</script>
+{% endblock %}

@@ -81,3 +81,5 @@ celerybeat-schedule
 # virtualenv
 venv/
 ENV/
+.coverage
+*.pyc

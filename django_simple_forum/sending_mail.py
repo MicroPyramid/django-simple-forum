@@ -3,19 +3,12 @@ import boto.ses
 import sendgrid
 import requests
 from django.core.mail import EmailMultiAlternatives
+from django_ses_gateway.sending_mail import sending_mail
 
 
-def Memail(mto, mfrom, msubject, mbody):
-    print (settings.MAIL_SENDER)
+def Memail(mto, mfrom, msubject, mbody, email_template_name, context):
     if settings.MAIL_SENDER == 'AMAZON':
-        # conn=SESConnection(settings.AM_ACCESS_KEY, settings.AM_PASS_KEY)
-        conn = boto.ses.connect_to_region(
-            'eu-west-1',
-            aws_access_key_id=settings.AM_ACCESS_KEY,
-            aws_secret_access_key=settings.AM_PASS_KEY
-        )
-        conn.send_email(mfrom, msubject, mbody, mto, format='html')
-
+        sending_mail(msubject, email_template_name, context, mfrom, mto)
     elif settings.MAIL_SENDER == 'MAILGUN':
         requests.post(
             settings.MGUN_API_URL,
@@ -37,7 +30,6 @@ def Memail(mto, mfrom, msubject, mbody):
         reposne = sg.send(sending_msg)
         print (reposne)
     else:
-        print (mto)
         text_content = msubject
         msg = EmailMultiAlternatives(msubject, mbody, mfrom, mto)
         msg.attach_alternative(mbody, "text/html")

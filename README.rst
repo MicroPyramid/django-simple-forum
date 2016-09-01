@@ -1,6 +1,5 @@
 django-simple-forum:
 =====================================
-
 .. image:: https://readthedocs.org/projects/django-simple-forum/badge/?version=latest
    :target: http://django-simple-forum.readthedocs.io/en/latest/
    :alt: Documentation Status
@@ -17,7 +16,8 @@ django-simple-forum:
 
 .. image:: https://img.shields.io/github/license/micropyramid/django-simple-forum.svg
     :target: https://pypi.python.org/pypi/django-simple-forum/
-    
+
+
 Introduction:
 =============
 
@@ -31,11 +31,10 @@ Modules used:
     * Python  >= 2.6 (or Python 3.4)
     * Django  = 1.9.6
     * JQuery  >= 1.7
-    * Django-compressor == 2.0
     * Microurl >=3.6.1
     * Boto == 2.40.0
     * Sendgrid == 2.2.1
-
+    * django-ses-gateway
 
 Installation Procedure
 ======================

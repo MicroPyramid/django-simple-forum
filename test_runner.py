@@ -20,7 +20,7 @@ if __name__ == "__main__":
                         'django.contrib.sessions',
                         'django.contrib.staticfiles',
                         'sorl.thumbnail',
-                        'simple_pagination',
+                        #'simple_pagination',
                         'django_simple_forum',
                         ),
         MIDDLEWARE_CLASSES=(

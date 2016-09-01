@@ -18,6 +18,7 @@ Modules used:
     * Microurl >=3.6.1
     * Boto == 2.40.0
     * Sendgrid == 2.2.1
+    * django-ses-gateway
 
 
 Installation Procedure

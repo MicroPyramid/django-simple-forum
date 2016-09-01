@@ -51,6 +51,7 @@ setup(
         'microurl',
         'boto',
         'sendgrid',
-        'sorl-thumbnail==12.4a1'
+        'sorl-thumbnail==12.4a1',
+        'django-ses-gateway'
     ],
 )

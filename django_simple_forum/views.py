@@ -556,7 +556,7 @@ class CommentAdd(UserMixin, CreateView):
             subject = "New Comment For The Topic " + (comment.topic.title)
             rendered = t.render(c)
             mfrom = settings.DEFAULT_FROM_EMAIL
-            Memail(mto, mfrom, subject, rendered)
+            Memail(mto, mfrom, subject, rendered, 'emails/comment_add.html', c)
 
         for user in comment.mentioned.all():
             mto = [user.user.email]
@@ -565,7 +565,7 @@ class CommentAdd(UserMixin, CreateView):
             subject = "New Comment For The Topic " + (comment.topic.title)
             rendered = t.render(c)
             mfrom = settings.DEFAULT_FROM_EMAIL
-            Memail(mto, mfrom, subject, rendered)
+            Memail(mto, mfrom, subject, rendered, 'emails/comment_mentioned.html', c)
 
         timeline_activity(user=self.request.user, content_object=comment,
                           namespace='commented for the', event_type="comment-create")
@@ -1260,7 +1260,7 @@ class ForgotPasswordView(FormView):
             message = '<p>Your Password for the forum account is <strong>'+password+'</strong></p><br/><p>Use this credentials to login into <a href="' + settings.HOST_URL + '/forum/">forum</a></p>'
             to = user.email
             from_email = settings.DEFAULT_FROM_EMAIL
-            Memail(to, from_email, subject, message)
+            Memail(to, from_email, subject, message, '', '')
             user.set_password(password)
             user.save()
             data = {"error": False, "response": "An Email is sent to the entered email id"}

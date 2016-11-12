@@ -24,7 +24,7 @@ from datetime import datetime
 from django.contrib.auth.hashers import check_password
 from django.core.files import File
 from urllib.parse import urlparse, parse_qsl
-from mpcomp.facebook import GraphAPI, get_access_token_from_code
+from .facebook import GraphAPI, get_access_token_from_code
 import urllib
 try:
     import urllib.request as urllib2

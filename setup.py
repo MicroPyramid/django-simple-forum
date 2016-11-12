@@ -22,7 +22,7 @@ for dirpath, dirnames, filenames in os.walk(PROJECT_NAME):
 
 setup(
     name='django-simple-forum',
-    version='0.0.1',
+    version='0.0.2',
     packages=['django_simple_forum', 'django_simple_forum.templatetags', 'django_simple_forum.migrations'],
     include_package_data=True,
     description='A Full featured forum, easy to integrate and use.',

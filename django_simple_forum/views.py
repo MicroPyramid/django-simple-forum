@@ -1,15 +1,15 @@
+import json
+import urllib
+import requests
+
 from django.contrib.auth import logout, login, load_backend
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.views.generic.edit import FormView
 from django.core.urlresolvers import reverse
-from .forms import LoginForm
 from django.views.generic import (TemplateView, UpdateView,
                                   ListView, CreateView, DetailView, DeleteView, View)
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import ForumCategory, Badge, Topic, STATUS, Tags, UserProfile, UserTopics, Timeline, Facebook, Google, Comment
-from .mixins import AdminMixin, UserMixin
 from django.http import JsonResponse
-from .forms import CategoryForm, BadgeForm, RegisterForm, TopicForm, CommentForm, UserProfileForm, ChangePasswordForm, UserChangePasswordForm, ForgotPasswordForm
 try:
     from django.contrib.auth import get_user_model
     User = get_user_model()
@@ -19,24 +19,24 @@ from django.template.defaultfilters import slugify
 # from endless_pagination.views import AjaxListView
 from microurl import google_mini
 from django.conf import settings
-import json
 from datetime import datetime
 from django.contrib.auth.hashers import check_password
 from django.core.files import File
-from urllib.parse import urlparse, parse_qsl
-from .facebook import GraphAPI, get_access_token_from_code
-import urllib
-try:
-    import urllib.request as urllib2
-except ImportError:
-    import urllib2
-import requests
-from .sending_mail import Memail
+from urllib.parse import urlparse
 from django.template import Context
-from django.contrib.sites.shortcuts import get_current_site
 from django.template import loader
 from django.utils.crypto import get_random_string
 from django.db.models import Q
+
+from .forms import LoginForm
+from .models import (ForumCategory, Badge, Topic, STATUS, Tags, UserProfile, UserTopics,
+                     Timeline, Facebook, Google, Comment)
+from .mixins import AdminMixin, UserMixin
+from .forms import (CategoryForm, BadgeForm, RegisterForm, TopicForm,
+                    CommentForm, UserProfileForm, ChangePasswordForm,
+                    UserChangePasswordForm, ForgotPasswordForm)
+from mpcomp.facebook import GraphAPI, get_access_token_from_code
+from .sending_mail import Memail
 
 
 def timeline_activity(user, content_object, namespace, event_type):
@@ -56,9 +56,11 @@ class LoginView(FormView):
         user = form.get_user()
         if user.is_superuser:
             login(self.request, form.get_user())
-            data = {'error': False, 'response': 'You have successfully logged into the dashboard'}
+            data = {
+                'error': False, 'response': 'You have successfully logged into the dashboard'}
         else:
-            data = {'error': True, 'response': 'You dont have access to login to dashboard'}
+            data = {
+                'error': True, 'response': 'You dont have access to login to dashboard'}
         return JsonResponse(data)
 
     def get_success_url(self):
@@ -124,6 +126,12 @@ class CategoryAdd(AdminMixin, CreateView):
     model = ForumCategory
     form_class = CategoryForm
     template_name = "dashboard/category_add.html"
+    success_url = '/forum/dashboard/categories/add/'
+
+    def get_form_kwargs(self):
+        kwargs = super(CategoryAdd, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
 
     def form_valid(self, form):
         menu = form.save()
@@ -133,9 +141,6 @@ class CategoryAdd(AdminMixin, CreateView):
 
         data = {'error': False, 'response': 'Successfully Created Category'}
         return JsonResponse(data)
-
-    def get_form(self, form_class):
-        return form_class(self.request.POST, user=self.request.user)
 
     def get_success_url(self):
         return redirect(reverse('django_simple_forum:categories'))
@@ -173,12 +178,17 @@ class CategoryDelete(AdminMixin, DeleteView):
 
 class CategoryEdit(AdminMixin, UpdateView):
     model = ForumCategory
-    template_name = "dashboard/category_add.html"
     form_class = CategoryForm
+    template_name = "dashboard/category_add.html"
     context_object_name = 'category'
 
     def get_object(self):
         return get_object_or_404(ForumCategory, slug=self.kwargs['slug'])
+
+    def get_form_kwargs(self):
+        kwargs = super(CategoryEdit, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
 
     def form_valid(self, form):
         menu = form.save()
@@ -190,9 +200,6 @@ class CategoryEdit(AdminMixin, UpdateView):
 
     def get_success_url(self):
         return redirect(reverse('django_simple_forum:categories'))
-
-    def get_form(self, form_class):
-        return form_class(self.request.POST, instance=self.get_object(), user=self.request.user)
 
     def form_invalid(self, form):
         return JsonResponse({'error': True, 'response': form.errors})
@@ -218,8 +225,12 @@ class BadgeList(AdminMixin, ListView):
     def post(self, request, *args, **kwargs):
         badges_list = self.model.objects.all()
         if request.POST.get('search_text', ''):
-            badges_list = badges_list.filter(Q(title__icontains=request.POST.get('search_text')))
-        return render(request, self.template_name, {'badges_list': badges_list, "per_page": request.POST.get("filter_per_page") if request.POST.get("filter_per_page") else 10})
+            badges_list = badges_list.filter(
+                Q(title__icontains=request.POST.get('search_text')))
+        per_page = request.POST.get("filter_per_page") if request.POST.get(
+            "filter_per_page") else 10
+        return render(request, self.template_name, {'badges_list': badges_list,
+                                                    "per_page": per_page})
 
 
 class DashboardTopicList(AdminMixin, ListView):
@@ -235,8 +246,12 @@ class DashboardTopicList(AdminMixin, ListView):
     def post(self, request, *args, **kwargs):
         topic_list = self.model.objects.all()
         if request.POST.get('search_text', ''):
-            topic_list = topic_list.filter(Q(title__icontains=request.POST.get('search_text')) | Q(created_by__username__icontains=request.POST.get('search_text')))
-        return render(request, self.template_name, {'topic_list': topic_list, "per_page": request.POST.get("filter_per_page") if request.POST.get("filter_per_page") else 10})
+            topic_list = topic_list.filter(Q(title__icontains=request.POST.get('search_text')) | Q(
+                created_by__username__icontains=request.POST.get('search_text')))
+        per_page = request.POST.get("filter_per_page") if request.POST.get(
+            "filter_per_page") else 10
+        return render(request, self.template_name, {'topic_list': topic_list,
+                                                    "per_page": per_page})
 
 
 class BadgeDetailView(AdminMixin, DetailView):
@@ -254,13 +269,15 @@ class BadgeAdd(AdminMixin, CreateView):
     form_class = BadgeForm
     template_name = "dashboard/badge_add.html"
 
+    def get_form_kwargs(self):
+        kwargs = super(BadgeAdd, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
     def form_valid(self, form):
         form.save()
         data = {'error': False, 'response': 'Successfully Created Badge'}
         return JsonResponse(data)
-
-    def get_form(self, form_class):
-        return form_class(self.request.POST, user=self.request.user)
 
     def get_success_url(self):
         return redirect(reverse('django_simple_forum:badges'))
@@ -302,6 +319,11 @@ class BadgeEdit(AdminMixin, UpdateView):
     def get_object(self):
         return get_object_or_404(Badge, slug=self.kwargs['slug'])
 
+    def get_form_kwargs(self):
+        kwargs = super(BadgeEdit, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
     def form_valid(self, form):
         form.save()
         data = {'error': False, 'response': 'Successfully Edited Badge'}
@@ -309,9 +331,6 @@ class BadgeEdit(AdminMixin, UpdateView):
 
     def get_success_url(self):
         return redirect(reverse('django_simple_forum:badges'))
-
-    def get_form(self, form_class):
-        return form_class(self.request.POST, instance=self.get_object(), user=self.request.user)
 
     def form_invalid(self, form):
         return JsonResponse({'error': True, 'response': form.errors})
@@ -341,7 +360,10 @@ class UserList(AdminMixin, ListView):
             ) | users_list.filter(
                 user__username__icontains=request.POST.get('search_text')
             )))
-        return render(request, self.template_name, {'users_list': users_list, "per_page": request.POST.get("filter_per_page") if request.POST.get("filter_per_page") else 10})
+        per_page = request.POST.get("filter_per_page") if request.POST.get(
+            "filter_per_page") else 10
+        return render(request, self.template_name, {'users_list': users_list,
+                                                    "per_page": per_page})
 
 
 class DashboardUserEdit(AdminMixin, UpdateView):
@@ -353,8 +375,12 @@ class DashboardUserEdit(AdminMixin, UpdateView):
     def get_object(self):
         return get_object_or_404(UserProfile, user_id=self.kwargs['user_id'])
 
+    def get_form_kwargs(self):
+        kwargs = super(DashboardUserEdit, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
     def form_valid(self, form):
-        print (form.cleaned_data)
         user_profile = form.save()
         user_profile.badges.clear()
         user_profile.badges.add(*form.cleaned_data['badges'])
@@ -364,11 +390,7 @@ class DashboardUserEdit(AdminMixin, UpdateView):
     def get_success_url(self):
         return redirect(reverse('django_simple_forum:users'))
 
-    def get_form(self, form_class):
-        return form_class(self.request.POST, instance=self.get_object())
-
     def form_invalid(self, form):
-        print (self.request.POST)
         return JsonResponse({'error': True, 'response': form.errors})
 
     def get_context_data(self, **kwargs):
@@ -436,6 +458,11 @@ class TopicAdd(UserMixin, CreateView):
     form_class = TopicForm
     template_name = "forum/new_topic.html"
 
+    def get_form_kwargs(self):
+        kwargs = super(TopicAdd, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
     def form_valid(self, form):
         topic = form.save()
         if self.request.POST['sub_category']:
@@ -449,14 +476,17 @@ class TopicAdd(UserMixin, CreateView):
                 else:
                     each = Tags.objects.filter(slug=slugify(tag)).first()
                     topic.tags.add(each)
-        liked_users_ids = UserTopics.objects.filter(topic__category=topic.category, is_like=True).values_list('user', flat=True)
-        followed_users = UserTopics.objects.filter(topic__category=topic.category, is_followed=True).values_list('user', flat=True)
+        # liked_users_ids = UserTopics.objects.filter(
+        #     topic__category=topic.category, is_like=True).values_list('user', flat=True)
+        # followed_users = UserTopics.objects.filter(
+        #     topic__category=topic.category, is_followed=True).values_list('user', flat=True)
         # users = UserProfile.objects.filter(user_id__in=set(all_users))
 
         # for user in users:
         #     mto = [user.user.email]
-        #     c = Context({'comment': comment, "user": user.user, 'topic_url': settings.HOST_URL + reverse('django_simple_forum:view_topic', kwargs={'slug': topic.slug}), "HOST_URL": settings.HOST_URL})
-        #     print (c)
+        #     c = Context({'comment': comment, "user": user.user,
+        #                  'topic_url': settings.HOST_URL + reverse('django_simple_forum:view_topic', kwargs={'slug': topic.slug}),
+        #                  "HOST_URL": settings.HOST_URL})
         #     t = loader.get_template('emails/new_topic.html')
         #     subject = "New Topic For The Category" + (topic.category.title)
         #     rendered = t.render(c)
@@ -468,9 +498,6 @@ class TopicAdd(UserMixin, CreateView):
 
         data = {'error': False, 'response': 'Successfully Created Topic'}
         return JsonResponse(data)
-
-    def get_form(self, form_class):
-        return form_class(self.request.POST, user=self.request.user)
 
     def get_success_url(self):
         return redirect(reverse('django_simple_forum:signup'))
@@ -539,6 +566,11 @@ class CommentAdd(UserMixin, CreateView):
     form_class = CommentForm
     template_name = 'forum/view_topic.html'
 
+    def get_form_kwargs(self):
+        kwargs = super(CommentAdd, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
     def form_valid(self, form):
         comment = form.save()
         if self.request.POST['parent']:
@@ -551,30 +583,31 @@ class CommentAdd(UserMixin, CreateView):
 
         for user in comment.topic.get_topic_users():
             mto = [user.user.email]
-            c = Context({'comment': comment, "user": user.user, 'topic_url': settings.HOST_URL+reverse('django_simple_forum:view_topic', kwargs={'slug': comment.topic.slug}), "HOST_URL": settings.HOST_URL})
+            c = Context({'comment': comment, "user": user.user,
+                         'topic_url': settings.HOST_URL+reverse('django_simple_forum:view_topic', kwargs={'slug': comment.topic.slug}),
+                         "HOST_URL": settings.HOST_URL})
             t = loader.get_template('emails/comment_add.html')
             subject = "New Comment For The Topic " + (comment.topic.title)
             rendered = t.render(c)
             mfrom = settings.DEFAULT_FROM_EMAIL
-            Memail(mto, mfrom, subject, rendered, 'emails/comment_add.html', c)
+            Memail(mto, mfrom, subject, rendered)
 
         for user in comment.mentioned.all():
             mto = [user.user.email]
-            c = Context({'comment': comment, "user": user.user, 'topic_url': settings.HOST_URL+reverse('django_simple_forum:view_topic', kwargs={'slug': comment.topic.slug}), "HOST_URL": settings.HOST_URL})
+            c = Context({'comment': comment, "user": user.user,
+                         'topic_url': settings.HOST_URL+reverse('django_simple_forum:view_topic', kwargs={'slug': comment.topic.slug}),
+                         "HOST_URL": settings.HOST_URL})
             t = loader.get_template('emails/comment_mentioned.html')
             subject = "New Comment For The Topic " + (comment.topic.title)
             rendered = t.render(c)
             mfrom = settings.DEFAULT_FROM_EMAIL
-            Memail(mto, mfrom, subject, rendered, 'emails/comment_mentioned.html', c)
+            Memail(mto, mfrom, subject, rendered)
 
         timeline_activity(user=self.request.user, content_object=comment,
                           namespace='commented for the', event_type="comment-create")
 
         data = {'error': False, 'response': 'Successfully Created Topic'}
         return JsonResponse(data)
-
-    def get_form(self, form_class):
-        return form_class(self.request.POST, user=self.request.user)
 
     def get_success_url(self):
         return redirect(reverse('django_simple_forum:signup'))
@@ -614,17 +647,19 @@ class CommentEdit(UserMixin, UpdateView):
                               namespace='commented for the', event_type="comment-create")
             data = {'error': False, 'response': 'Successfully Edited User'}
         else:
-            data = {'error': True, 'response': 'Only Commented User Can edit this comment'}
+            data = {
+                'error': True, 'response': 'Only Commented User Can edit this comment'}
         return JsonResponse(data)
 
     def get_success_url(self):
         return redirect(reverse('django_simple_forum:users'))
 
-    def get_form(self, form_class):
-        return form_class(self.request.POST, instance=self.get_object())
+    def get_form_kwargs(self):
+        kwargs = super(CommentAdd, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
 
     def form_invalid(self, form):
-        print (form.errors)
         return JsonResponse({'error': True, 'response': form.errors})
 
     def get_context_data(self, **kwargs):
@@ -685,7 +720,9 @@ class TopicLike(UserMixin, View):
         user_topic.save()
         topic.save()
 
-        return JsonResponse({'error': False, 'response': 'Successfully Deleted Category', 'is_like': user_topic.is_like, 'no_of_likes': topic.no_of_likes, 'no_of_users': topic.get_topic_users().count()})
+        return JsonResponse({'error': False, 'response': 'Successfully Deleted Category',
+                             'is_like': user_topic.is_like, 'no_of_likes': topic.no_of_likes,
+                             'no_of_users': topic.get_topic_users().count()})
 
 
 class ForumCategoryList(ListView):
@@ -737,9 +774,6 @@ class ForumCategoryView(ListView):
         context['topic_list'] = topics
         return context
 
-    def post(self, request, *args, **kwargs):
-        topic = self.get_object()
-
 
 class ForumTagsView(ListView):
     model = Topic
@@ -753,9 +787,6 @@ class ForumTagsView(ListView):
         topics = self.get_object().get_topics()
         context['topic_list'] = topics
         return context
-
-    def post(self, request, *args, **kwargs):
-        topic = self.get_object()
 
 
 class DashboardTopicDelete(AdminMixin, DeleteView):
@@ -861,7 +892,8 @@ class UserDetail(AdminMixin, TemplateView):
         context['user_topics'] = user_topics
         context['user_liked_topics'] = user_topics.filter(is_like=True)
         context['user_followed_topics'] = user_topics.filter(is_followed=True)
-        context['user_created_topics'] = Topic.objects.filter(created_by=self.get_object())
+        context['user_created_topics'] = Topic.objects.filter(
+            created_by=self.get_object())
         return context
 
 
@@ -894,7 +926,8 @@ class TopicFollow(UserMixin, View):
             timeline_activity(user=self.request.user, content_object=topic,
                               namespace='follow the', event_type="follow-topic")
         user_topic.save()
-        return JsonResponse({'error': False, 'response': 'Successfully Followed the topic', 'is_followed': user_topic.is_followed})
+        return JsonResponse({'error': False, 'response': 'Successfully Followed the topic',
+                             'is_followed': user_topic.is_followed})
 
 
 class TopicVotes(UserMixin, View):
@@ -924,10 +957,11 @@ class TopicVotes(UserMixin, View):
                 topic.no_of_votes = int(topic.no_of_votes) + 1
                 user_profile.used_votes = int(user_profile.used_votes) + 1
                 if user_topic.no_of_down_votes > 0:
-                    user_profile.used_votes = user_profile.used_votes - user_topic.no_of_down_votes
-                    topic.no_of_down_votes = topic.no_of_down_votes - user_topic.no_of_down_votes
+                    user_profile.used_votes = user_profile.used_votes - \
+                        user_topic.no_of_down_votes
+                    topic.no_of_down_votes = topic.no_of_down_votes - \
+                        user_topic.no_of_down_votes
                     user_topic.no_of_down_votes = 0
-                    print (user_topic.no_of_down_votes)
 
                 timeline_activity(
                     user=self.request.user, content_object=topic, namespace='Vote the', event_type="vote-topic")
@@ -936,8 +970,10 @@ class TopicVotes(UserMixin, View):
                 topic.no_of_down_votes = topic.no_of_down_votes + 1
                 user_profile.used_votes = user_profile.used_votes + 1
                 if user_topic.no_of_votes > 0:
-                    user_profile.used_votes = user_profile.used_votes - user_topic.no_of_votes
-                    topic.no_of_votes = topic.no_of_votes - user_topic.no_of_votes
+                    user_profile.used_votes = user_profile.used_votes - \
+                        user_topic.no_of_votes
+                    topic.no_of_votes = topic.no_of_votes - \
+                        user_topic.no_of_votes
                     user_topic.no_of_votes = 0
 
                 timeline_activity(user=self.request.user, content_object=topic,
@@ -987,7 +1023,8 @@ class ProfileView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
-        user_profile = get_object_or_404(UserProfile, user__username=self.kwargs['user_name'])
+        user_profile = get_object_or_404(
+            UserProfile, user__username=self.kwargs['user_name'])
         context['user_profile'] = user_profile
         return context
 
@@ -1027,7 +1064,8 @@ class UserSettingsView(UserMixin, View):
         else:
             user_profile.send_mailnotifications = False
         user_profile.save()
-        return JsonResponse({'error': False, 'response': 'You have successfully uploaded the settings', "send_mailnotifications": user_profile.send_mailnotifications})
+        return JsonResponse({'error': False, 'response': 'You have successfully uploaded the settings',
+                             "send_mailnotifications": user_profile.send_mailnotifications})
 
 
 class UserDetailView(TemplateView):
@@ -1045,22 +1083,27 @@ class UserDetailView(TemplateView):
 
 def facebook_login(request):
     if 'code' in request.GET:
-        accesstoken = get_access_token_from_code(request.GET['code'], request.scheme + '://' + request.META['HTTP_HOST'] + reverse('django_simple_forum:facebook_login'), settings.FB_APP_ID, settings.FB_SECRET)
+        accesstoken = get_access_token_from_code(request.GET['code'], request.scheme + '://' + request.META[
+                                                 'HTTP_HOST'] + reverse('django_simple_forum:facebook_login'), settings.FB_APP_ID, settings.FB_SECRET)
         if 'error' in accesstoken.keys():
-            messages.error(request, "Sorry, Your session has been expired")
             return render(request, '404.html')
         graph = GraphAPI(accesstoken['access_token'])
-        accesstoken = graph.extend_access_token(settings.FB_APP_ID, settings.FB_SECRET)['accesstoken']
+        accesstoken = graph.extend_access_token(
+            settings.FB_APP_ID, settings.FB_SECRET)['accesstoken']
         profile = graph.get_object("me")
-        hometown = profile['hometown']['name'] if 'hometown' in profile.keys() else ''
-        location = profile['location']['name'] if 'location' in profile.keys() else ''
-        bday = datetime.strptime(profile['birthday'], '%m/%d/%Y').strftime('%Y-%m-%d') if 'birthday' in profile.keys() else '1970-09-09'
+        hometown = profile['hometown'][
+            'name'] if 'hometown' in profile.keys() else ''
+        location = profile['location'][
+            'name'] if 'location' in profile.keys() else ''
+        bday = datetime.strptime(profile['birthday'], '%m/%d/%Y').strftime(
+            '%Y-%m-%d') if 'birthday' in profile.keys() else '1970-09-09'
         profile_pic = "https://graph.facebook.com/" + \
             profile['id'] + "/picture?type=large"
 
         if 'email' in profile.keys():
             if User.objects.filter(username=profile['email'], email=profile['email']):
-                user = User.objects.filter(username=profile['email'], email=profile['email']).first()
+                user = User.objects.filter(
+                    username=profile['email'], email=profile['email']).first()
             else:
                 user, created = User.objects.get_or_create(
                     username=profile['email'],
@@ -1071,11 +1114,13 @@ def facebook_login(request):
                 )
             user_profile = UserProfile.objects.filter(user=user).last()
             if not user_profile:
-                user_profile = UserProfile.objects.create(user=user, user_roles="Publisher")
+                user_profile = UserProfile.objects.create(
+                    user=user, user_roles="Publisher")
             name = urlparse(profile_pic).path.split('/')[-1]
             # content = urllib.urlretrieve(profile_pic)
             content = urllib.request.urlretrieve(profile_pic)
-            user_profile.profile_pic.save(name, File(open(content[0], 'rb')), save=True)
+            user_profile.profile_pic.save(
+                name, File(open(content[0], 'rb')), save=True)
             user_profile.save()
 
             fb = Facebook.objects.filter(user=user).last()
@@ -1124,12 +1169,12 @@ def facebook_login(request):
                     login(request, user)
             return HttpResponseRedirect('/forum/')
         else:
-            message.error(request, "Sorry, We didnt find your email id through facebook")
             return render(request, '404.html')
     elif 'error' in request.GET:
         print(request.GET)
     else:
-        rty = "https://graph.facebook.com/oauth/authorize?client_id=" + settings.FB_APP_ID + "&redirect_uri=" + request.scheme + '://' + request.META['HTTP_HOST'] + reverse('django_simple_forum:facebook_login') + "&scope=manage_pages,read_stream, user_about_me, user_birthday, user_location, user_work_history, user_hometown, user_website, email, user_likes, user_groups"
+        rty = "https://graph.facebook.com/oauth/authorize?client_id=" + settings.FB_APP_ID + "&redirect_uri=" + request.scheme + '://' + request.META['HTTP_HOST'] + reverse(
+            'django_simple_forum:facebook_login') + "&scope=manage_pages,read_stream, user_about_me, user_birthday, user_location, user_work_history, user_hometown, user_website, email, user_likes, user_groups"
         return HttpResponseRedirect(rty)
 
 
@@ -1142,7 +1187,8 @@ def google_login(request):
             'client_id': settings.GP_CLIENT_ID,
             'client_secret': settings.GP_CLIENT_SECRET
         }
-        info = requests.post("https://accounts.google.com/o/oauth2/token", data=params)
+        info = requests.post(
+            "https://accounts.google.com/o/oauth2/token", data=params)
         info = info.json()
         url = 'https://www.googleapis.com/oauth2/v1/userinfo'
         params = {'access_token': info['access_token']}
@@ -1150,10 +1196,14 @@ def google_login(request):
         response = requests.request('GET', url, **kw)
         user_document = response.json()
         link = "https://plus.google.com/" + user_document['id']
-        picture = user_document['picture'] if 'picture' in user_document.keys() else ""
-        dob = user_document['birthday'] if 'birthday' in user_document.keys() else ""
-        gender = user_document['gender'] if 'gender' in user_document.keys() else ""
-        link = user_document['link'] if 'link' in user_document.keys() else link
+        picture = user_document[
+            'picture'] if 'picture' in user_document.keys() else ""
+        dob = user_document[
+            'birthday'] if 'birthday' in user_document.keys() else ""
+        gender = user_document[
+            'gender'] if 'gender' in user_document.keys() else ""
+        link = user_document[
+            'link'] if 'link' in user_document.keys() else link
 
         if request.user.is_authenticated():
             user = request.user
@@ -1174,7 +1224,8 @@ def google_login(request):
 
         user_profile = UserProfile.objects.filter(user=user).last()
         if not user_profile:
-            user_profile = UserProfile.objects.create(user=user, user_roles="Publisher")
+            user_profile = UserProfile.objects.create(
+                user=user, user_roles="Publisher")
         google, created = Google.objects.get_or_create(user=user)
         google.user = user
         google.google_url = link
@@ -1216,7 +1267,7 @@ def get_mentioned_user(request, topic_id):
         for user in topic_users:
             data = {}
             data['username'] = user.user.email.split('@')[0]
-            # data['avatar'] = user.profile_pic.url if user.profile_pic else 'https://www.2025ad.com/typo3conf/ext/providerconti/Resources/Public/src/Images/profil-pic_dummy.png'
+            # data['avatar'] = user.profile_pic.url if user.profile_pic else ''
             data['fullname'] = user.user.email
             list_data.append(data)
     return HttpResponse(
@@ -1243,7 +1294,6 @@ class UserChangePassword(UserMixin, FormView):
         return HttpResponse(json.dumps({'error': False, 'message': 'Password changed successfully'}))
 
     def form_invalid(self, form):
-        print (form.errors)
         return JsonResponse({'error': True, 'response': form.errors})
 
 
@@ -1257,16 +1307,20 @@ class ForgotPasswordView(FormView):
             user = user[0]
             subject = "Password Reset"
             password = get_random_string(6)
-            message = '<p>Your Password for the forum account is <strong>'+password+'</strong></p><br/><p>Use this credentials to login into <a href="' + settings.HOST_URL + '/forum/">forum</a></p>'
+            message = '<p>Your Password for the forum account is <strong>'+password + \
+                '</strong></p><br/><p>Use this credentials to login into <a href="' + \
+                settings.HOST_URL + '/forum/">forum</a></p>'
             to = user.email
             from_email = settings.DEFAULT_FROM_EMAIL
-            Memail(to, from_email, subject, message, '', '')
+            Memail(to, from_email, subject, message)
             user.set_password(password)
             user.save()
-            data = {"error": False, "response": "An Email is sent to the entered email id"}
+            data = {
+                "error": False, "response": "An Email is sent to the entered email id"}
             return HttpResponse(json.dumps(data))
         else:
-            data = {"error": True, "message": "User With this email id doesn't exists!!!"}
+            data = {
+                "error": True, "message": "User With this email id doesn't exists!!!"}
             return HttpResponse(json.dumps(data))
 
     def form_invalid(self, form):

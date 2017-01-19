@@ -54,9 +54,7 @@ class GraphAPI(object):
         # x=self.request(id, post_args={"method": "delete"})
         params = urllib.parse.urlencode({"method": "delete", 'access_token': str(id)})
         u = requests.get("https://graph.facebook.com/" + str(id) + "?" + params)
-        print (u)
         groups = u.json()
-        print (groups)
         return groups
 
     def request(self, path, args=None, post_args=None):
@@ -82,11 +80,8 @@ class GraphAPI(object):
                 socket.setdefaulttimeout(self.timeout)
             file = urllib2.urlopen("https://graph.facebook.com/" + path + "?" +
                                    urllib.parse.urlencode(args), post_data)
-        print (file)
         try:
             fileInfo = file.info()
-            print (fileInfo)
-            print (fileInfo.keys())
             response = ''
             # if 'maintype' in fileInfo.keys():
                 # if fileInfo.maintype == 'text':
@@ -299,14 +294,10 @@ def get_access_token_from_code(code, redirect_uri, app_id, app_secret):
             result["expires"] = query_str["expires"][0]
         return result
     else:
-        print (type(response))
-        print (response)
         jsonResponse = json.loads(str(response))
-        print (jsonResponse)
         # response = json.loads(response)
         encoding = response.info().get_content_charset('utf8')
         data = json.loads(response.read().decode(encoding))
-        print (data)
         return data
 
 

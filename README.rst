@@ -78,7 +78,7 @@ Installation Procedure
     pip install -r requirements.txt
 
 
-You can view the complete `avaliable online`_
+You can view the complete documentation here. `Documentation`_
 
 We are always looking to help you customize the whole or part of the code as you like.
 
@@ -90,7 +90,7 @@ We welcome your feedback and support, raise `github ticket`_ if you want to repo
 mailto:: "hello@micropyramid.com"
 
 .. _contact us here: https://micropyramid.com/contact-us/
-.. _avaliable online: http://django-simple-forum.readthedocs.io/en/latest/
+.. _Documentation: http://django-simple-forum.readthedocs.io/en/latest/
 .. _github ticket: https://github.com/MicroPyramid/django-simple-forum/issues
 .. _django simple forum: https://micropyramid.com/oss/
 .. _Micropyramid Repository: https://github.com/MicroPyramid/django-simple-forum.git

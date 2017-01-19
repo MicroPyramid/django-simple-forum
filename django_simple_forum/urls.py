@@ -1,7 +1,18 @@
 from django.conf.urls import url
-from endless_pagination.views import AjaxListView
-from .models import Topic
-from .views import *
+from .views import (TopicList, IndexView, ForumLoginView, facebook_login, google_login,
+                    TopicAdd, TopicView, TopicLike, TopicFollow, TopicVotes,
+                    get_mentioned_user, ProfileView, UserChangePassword,
+                    ForgotPasswordView, CommentDelete,
+                    CommentEdit, ForumCategoryList, ForumTagsList, ForumBadgeList,
+                    UserProfileView, UserProfilePicView, UserSettingsView,
+                    ForumCategoryView, ForumTagsView, UserDetailView,
+                    CommentAdd, LoginView, ChangePassword,
+                    getout, CategoryList, CategoryAdd, CategoryDelete,
+                    CategoryEdit, CategoryDetailView,
+                    BadgeList, BadgeAdd, BadgeDelete, BadgeEdit, BadgeDetailView,
+                    UserList, DashboardUserDelete, UserStatus, UserDetail,
+                    DashboardUserEdit, DashboardTopicList, DashboardTopicDelete,
+                    TopicDetail, TopicStatus)
 
 urlpatterns = [
     url(r'^$', TopicList.as_view(), name="topic_list"),
@@ -20,7 +31,8 @@ urlpatterns = [
     url(r'^user/profile/(?P<user_name>[-\w]+)/$', ProfileView.as_view(), name="view_profile"),
     url(r'^change-password/$', UserChangePassword.as_view(), name="user_change_password"),
     url(r'^forgot-password/$', ForgotPasswordView.as_view(), name="forgot_password"),
-    url(r'^comment/delete/(?P<comment_id>[-\w]+)/$', CommentDelete.as_view(), name="comment_delete"),
+    url(r'^comment/delete/(?P<comment_id>[-\w]+)/$',
+        CommentDelete.as_view(), name="comment_delete"),
     url(r'^comment/edit/(?P<comment_id>[-\w]+)/$', CommentEdit.as_view(), name="comment_edit"),
 
     url(r'^categories/$', ForumCategoryList.as_view(), name="forum_categories"),
@@ -43,9 +55,12 @@ urlpatterns = [
 
     url(r'^dashboard/category/list/$', CategoryList.as_view(), name="categories"),
     url(r'^dashboard/category/add/$', CategoryAdd.as_view(), name="add_category"),
-    url(r'^dashboard/category/delete/(?P<slug>[-\w]+)/$', CategoryDelete.as_view(), name="delete_category"),
-    url(r'^dashboard/category/edit/(?P<slug>[-\w]+)/$', CategoryEdit.as_view(), name="edit_category"),
-    url(r'^dashboard/category/view/(?P<slug>[-\w]+)/$', CategoryDetailView.as_view(), name="view_category"),
+    url(r'^dashboard/category/delete/(?P<slug>[-\w]+)/$',
+        CategoryDelete.as_view(), name="delete_category"),
+    url(r'^dashboard/category/edit/(?P<slug>[-\w]+)/$',
+        CategoryEdit.as_view(), name="edit_category"),
+    url(r'^dashboard/category/view/(?P<slug>[-\w]+)/$',
+        CategoryDetailView.as_view(), name="view_category"),
 
     url(r'^dashboard/badge/list/$', BadgeList.as_view(), name="badges"),
     url(r'^dashboard/badge/add/$', BadgeAdd.as_view(), name="add_badge"),
@@ -54,13 +69,18 @@ urlpatterns = [
     url(r'^dashboard/badge/view/(?P<slug>[-\w]+)/$', BadgeDetailView.as_view(), name="view_badge"),
 
     url(r'^dashboard/users/list/$', UserList.as_view(), name="users"),
-    url(r'^dashboard/users/delete/(?P<user_id>[a-zA-Z0-9_-]+.*?)/$', DashboardUserDelete.as_view(), name="delete_user"),
-    url(r'^dashboard/users/status/(?P<user_id>[a-zA-Z0-9_-]+.*?)/$', UserStatus.as_view(), name="user_status"),
-    url(r'^dashboard/users/view/(?P<user_id>[a-zA-Z0-9_-]+.*?)/$', UserDetail.as_view(), name="user_detail"),
-    url(r'^dashboard/users/edit/(?P<user_id>[a-zA-Z0-9_-]+.*?)/$', DashboardUserEdit.as_view(), name="edit_user"),
+    url(r'^dashboard/users/delete/(?P<user_id>[a-zA-Z0-9_-]+.*?)/$',
+        DashboardUserDelete.as_view(), name="delete_user"),
+    url(r'^dashboard/users/status/(?P<user_id>[a-zA-Z0-9_-]+.*?)/$',
+        UserStatus.as_view(), name="user_status"),
+    url(r'^dashboard/users/view/(?P<user_id>[a-zA-Z0-9_-]+.*?)/$',
+        UserDetail.as_view(), name="user_detail"),
+    url(r'^dashboard/users/edit/(?P<user_id>[a-zA-Z0-9_-]+.*?)/$',
+        DashboardUserEdit.as_view(), name="edit_user"),
 
     url(r'^dashboard/topics/list/$', DashboardTopicList.as_view(), name="topics"),
-    url(r'^dashboard/topics/delete/(?P<slug>[-\w]+)/$', DashboardTopicDelete.as_view(), name="delete_topic"),
+    url(r'^dashboard/topics/delete/(?P<slug>[-\w]+)/$',
+        DashboardTopicDelete.as_view(), name="delete_topic"),
     url(r'^dashboard/topic/view/(?P<slug>[-\w]+)/$', TopicDetail.as_view(), name="topic_detail"),
     url(r'^dashboard/topic/status/(?P<slug>[-\w]+)/$', TopicStatus.as_view(), name="topic_status"),
 

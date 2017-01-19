@@ -21,10 +21,10 @@ django-simple-forum:
 Introduction:
 =============
 
-django-simple-forum is a discussion board where people with similar interests can create and discuss various topics. You can also mention any particpant those are involved in the repsective topic in the comment. You can also receive email notifications when there is an update in the topic, when you follow the topic.
+`django simple forum`_ is a discussion board where people with similar interests can create and discuss various topics. You can also mention any particpant those are involved in the repsective topic in the comment. You can also receive email notifications when there is an update in the topic, when you follow the topic.
 
 
-Source Code is available in Micropyramid Repository(https://github.com/MicroPyramid/django-simple-forum.git).
+Source Code is available in `Micropyramid Repository`_.
 
 Modules used:
 
@@ -56,7 +56,7 @@ Installation Procedure
     INSTALLED_APPS = [
        '..................',
        'compressor',
-       'django-simple-forum.django-simple-forum',
+       'django_simple_forum',
        '..................'
     ]
 
@@ -78,13 +78,19 @@ Installation Procedure
     pip install -r requirements.txt
 
 
+You can view the complete documentation here. `Documentation`_
+
 We are always looking to help you customize the whole or part of the code as you like.
 
 
-We welcome your feedback and support, raise github ticket if you want to report a bug. Need new features? `Contact us here`_
-
-.. _contact us here: https://micropyramid.com/contact-us/
+We welcome your feedback and support, raise `github ticket`_ if you want to report a bug. Need new features? `Contact us here`_
 
     or
 
 mailto:: "hello@micropyramid.com"
+
+.. _contact us here: https://micropyramid.com/contact-us/
+.. _Documentation: http://django-simple-forum.readthedocs.io/en/latest/
+.. _github ticket: https://github.com/MicroPyramid/django-simple-forum/issues
+.. _django simple forum: https://micropyramid.com/oss/
+.. _Micropyramid Repository: https://github.com/MicroPyramid/django-simple-forum.git

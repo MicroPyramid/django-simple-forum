@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
     README = readme.read()
@@ -22,8 +22,8 @@ for dirpath, dirnames, filenames in os.walk(PROJECT_NAME):
 
 setup(
     name='django-simple-forum',
-    version='0.0.1',
-    packages=['django_simple_forum', 'django_simple_forum.templatetags', 'django_simple_forum.migrations'],
+    version='0.0.2',
+    packages=find_packages(exclude=['tests', 'tests.*']),
     include_package_data=True,
     description='A Full featured forum, easy to integrate and use.',
     long_description=README,

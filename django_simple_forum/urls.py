@@ -12,7 +12,7 @@ from .views import (TopicList, IndexView, ForumLoginView, facebook_login, google
                     BadgeList, BadgeAdd, BadgeDelete, BadgeEdit, BadgeDetailView,
                     UserList, DashboardUserDelete, UserStatus, UserDetail,
                     DashboardUserEdit, DashboardTopicList, DashboardTopicDelete,
-                    TopicDetail, TopicStatus)
+                    TopicDetail, TopicStatus, TopicDelete, TopicEdit)
 
 urlpatterns = [
     url(r'^$', TopicList.as_view(), name="topic_list"),
@@ -22,11 +22,14 @@ urlpatterns = [
     url(r'^gp_login/$', google_login, name="google_login"),
 
     url(r'^topic/add/$', TopicAdd.as_view(), name="new_topic"),
+    url(r'^topic/edit/(?P<slug>[-\w]+)/$', TopicEdit.as_view(), name="update_topic"),
 
     url(r'^topic/view/(?P<slug>[-\w]+)/$', TopicView.as_view(), name="view_topic"),
     url(r'^topic/like/(?P<slug>[-\w]+)/$', TopicLike.as_view(), name="like_topic"),
     url(r'^topic/follow/(?P<slug>[-\w]+)/$', TopicFollow.as_view(), name="follow_topic"),
     url(r'^topic/votes/(?P<slug>[-\w]+)/$', TopicVotes.as_view(), name="topic_votes"),
+    url(r'^topic/delete/(?P<slug>[-\w]+)/$',
+        TopicDelete.as_view(), name="delete_user_topic"),
     url(r'^mentioned-users/(?P<topic_id>[-\w]+)/$', get_mentioned_user, name="get_mentioned_user"),
     url(r'^user/profile/(?P<user_name>[-\w]+)/$', ProfileView.as_view(), name="view_profile"),
     url(r'^change-password/$', UserChangePassword.as_view(), name="user_change_password"),

@@ -626,8 +626,20 @@ header .navbar-default {
               padding: 6px 10px;
               display: inline-block;
               font-size: 15px; }
-              .main_container .middle_container .main_left_container .view_topic_container .main_view_container .topic_options .user_options ul li a:hover {
-                color: #756e6e; }
+            .main_container .middle_container .main_left_container .view_topic_container .main_view_container .topic_options .user_options ul li a.update_topic {
+              color: #3e9b52; }
+            .main_container .middle_container .main_left_container .view_topic_container .main_view_container .topic_options .user_options ul li a.update_topic:hover {
+              color: #3e9b52; }
+            .main_container .middle_container .main_left_container .view_topic_container .main_view_container .topic_options .user_options ul li a.update_topic i:hover {
+              color: #3e9b52;}
+            .main_container .middle_container .main_left_container .view_topic_container .main_view_container .topic_options .user_options ul li a.delete_topic {
+              color: red; }
+            .main_container .middle_container .main_left_container .view_topic_container .main_view_container .topic_options .user_options ul li a.delete_topic:hover {
+              color: red; }
+            .main_container .middle_container .main_left_container .view_topic_container .main_view_container .topic_options .user_options ul li a.delete_topic i:hover {
+              color: red;}
+            .main_container .middle_container .main_left_container .view_topic_container .main_view_container .topic_options .user_options ul li a:hover {
+              color: #756e6e; }
             .main_container .middle_container .main_left_container .view_topic_container .main_view_container .topic_options .user_options ul li:last-child a {
               font-size: 13px;
               background: #e43f27;

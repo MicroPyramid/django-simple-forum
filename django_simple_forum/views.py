@@ -517,16 +517,109 @@ class TopicAdd(UserMixin, CreateView):
         return context
 
 
+class TopicEdit(UserMixin, UpdateView):
+    model = Topic
+    form_class = TopicForm
+    template_name = "forum/new_topic.html"
+    context_object_name = 'topic'
+
+    def get_object(self):
+        if self.request.user.is_authenticated():
+            if (
+                Topic.objects.filter(
+                    slug=self.kwargs['slug'],
+                    created_by__id=self.request.user.id)
+            ):
+                return get_object_or_404(Topic, slug=self.kwargs['slug'])
+
+        return redirect(reverse('django_simple_forum:topic_list'))
+
+    def get_form_kwargs(self):
+        kwargs = super(TopicEdit, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
+    def form_valid(self, form):
+        topic = form.save(commit=False)
+        print (self.request.POST)
+        if self.request.POST['category']:
+            if(
+                self.request.POST['sub_category'] and
+                ForumCategory.objects.filter(
+                    id=self.request.POST['category'],
+                    parent_id=self.request.POST['category'])
+            ):
+                topic.category_id = self.request.POST['sub_category']
+        topic.save()
+        if 'tags' in form.cleaned_data.keys() and form.cleaned_data['tags']:
+            for tag in form.cleaned_data['tags'].split(','):
+                if not Tags.objects.filter(slug=slugify(tag)):
+                    each = Tags.objects.create(slug=slugify(tag), title=tag)
+                    topic.tags.add(each)
+                else:
+                    each = Tags.objects.filter(slug=slugify(tag)).first()
+                    topic.tags.add(each)
+        timeline_activity(user=self.request.user, content_object=self.request.user,
+                          namespace='updated topic on', event_type="topic-update")
+
+        data = {'error': False, 'response': 'Successfully Updated Topic'}
+        return JsonResponse(data)
+
+    def get_success_url(self):
+        return redirect(reverse('django_simple_forum:signup'))
+
+    def form_invalid(self, form):
+        return JsonResponse({'error': True, 'response': form.errors})
+
+    def get_context_data(self, **kwargs):
+        context = super(TopicEdit, self).get_context_data(**kwargs)
+        form = TopicForm(self.request.GET)
+        context['form'] = form
+        context['status'] = STATUS
+        context['categories'] = ForumCategory.objects.filter(
+            is_active=True, is_votable=True, parent=None)
+        context['sub_categories'] = ForumCategory.objects.filter(
+            is_active=True, is_votable=True).exclude(parent=None)
+        print (context)
+        return context
+
+
 class TopicList(ListView):
     queryset = Topic.objects.filter(status='Published').order_by('-created_on')
     template_name = 'forum/topic_list.html'
     context_object_name = "topic_list"
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
-            if request.user.is_superuser:
-                return HttpResponseRedirect(reverse('django_simple_forum:dashboard'))
+        # if request.user.is_authenticated():
+        #     if request.user.is_superuser:
+        #         return HttpResponseRedirect(reverse('django_simple_forum:dashboard'))
         return super(TopicList, self).dispatch(request, *args, **kwargs)
+
+
+class TopicDelete(DeleteView):
+    model = Topic
+    slug_field = 'slug'
+    template_name = 'forum/view_topic.html'
+
+    def get_object(self):
+        return redirect(reverse('django_simple_forum:topic_list'))
+
+    def get_success_url(self):
+        return redirect(reverse('django_simple_forum:topic_list'))
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            if (
+                not Topic.objects.filter(
+                    slug=self.kwargs['slug'],
+                    created_by__id=request.user.id)
+            ):
+                return redirect(reverse('django_simple_forum:topic_list'))
+        else:
+            return redirect(reverse('django_simple_forum:topic_list'))
+        topic = self.get_object()
+        topic.delete()
+        return JsonResponse({'error': False, 'response': 'Successfully Deleted Topic'})
 
 
 class TopicView(TemplateView):

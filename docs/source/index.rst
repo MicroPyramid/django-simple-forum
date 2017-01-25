@@ -41,7 +41,6 @@ Installation Procedure
     INSTALLED_APPS = [
        '..................',
        'compressor',
-<<<<<<< HEAD
        'simple_pagination',
        'django-simple-forum',
        '..................'
@@ -54,7 +53,6 @@ Installation Procedure
     ]
 
 3. After installing/cloning, add the following details in settings file to send emails notifications::
->>>>>>> 6418bf9807ce1731177bce46936acdee2322858c
 
     # AWS details
 
@@ -80,7 +78,6 @@ Frontend Features:
     * User can follow the topic, receive email notifications if you have enabled email notification settings in the profile.
     * User can vote to a topic, like a topic for displaying their interest.
     * When you commenting to a topic, you can refer any other member involved in the comment.
-<<<<<<< HEAD
     * You can also send email notifications either from the aws, sendgrid, mailgun email application by providing the application credentials, application name in settings file.
 =======
     * You can also send email notifications from the aws, sendgrid, mailgun email application by providing the application credentials.

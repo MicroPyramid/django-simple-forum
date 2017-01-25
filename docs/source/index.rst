@@ -81,7 +81,6 @@ Frontend Features:
     * You can also send email notifications either from the aws, sendgrid, mailgun email application by providing the application credentials, application name in settings file.
 =======
     * You can also send email notifications from the aws, sendgrid, mailgun email application by providing the application credentials.
->>>>>>> 6418bf9807ce1731177bce46936acdee2322858c
 
 Dashboard Features:
 ===================

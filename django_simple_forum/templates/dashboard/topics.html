@@ -47,7 +47,7 @@
           <td>{{ topic.topic_comments.all|length }}</td>
           <td><a href="{% url "django_simple_forum:topic_detail" topic.slug %}" class=""><i class="fa fa-eye view"></i></a>
             <a data-href="{% url "django_simple_forum:topic_status" topic.slug %}" class="topic-status" title="{% ifequal topic.status 'Draft' %}Draft{% endifequal %}{% ifequal topic.status 'Published' %}Published{% endifequal %}{% ifequal topic.status 'Disabled' %}Disabled{% endifequal %}">{% ifequal topic.status 'Draft' %}<i class='fa fa-floppy-o draft view'></i>{% endifequal %}{% ifequal topic.status 'Published' %}<i class='fa fa-newspaper-o published edit'></i>{% endifequal %}{% ifequal topic.status 'Disabled' %}<i class='fa fa-exclamation-triangle disabled'></i>{% endifequal %}</a>
-            <a href="{% url "django_simple_forum:edit_category" topic.slug %}" class=""><i class="fa fa-edit edit"></i></a><a href="#" data-href="{% url "django_simple_forum:delete_topic" topic.slug %}" class="delete-topic"><i class="fa fa-trash delete"></i></a>
+            <a href="{% url "django_simple_forum:edit_topic" topic.slug %}" class=""><i class="fa fa-edit edit"></i></a><a href="#" data-href="{% url "django_simple_forum:delete_topic" topic.slug %}" class="delete-topic"><i class="fa fa-trash delete"></i></a>
           </td>
         </tr>
         {% endfor %}

@@ -7,6 +7,7 @@ except ImportError:
 from django import forms
 from .models import ForumCategory, Badge, Topic, Comment, UserProfile
 from django.template.defaultfilters import slugify
+import re
 
 
 class LoginForm(AuthenticationForm):
@@ -88,6 +89,11 @@ class BadgeForm(forms.ModelForm):
         return instance
 
 
+def cleanedSlug(title):
+    cleaned_title = re.sub('[^A-Za-z0-9]+', ' ', title)
+    return cleaned_title
+
+
 class TopicForm(forms.ModelForm):
 
     class Meta:
@@ -95,7 +101,7 @@ class TopicForm(forms.ModelForm):
         exclude = ('slug', 'no_of_views', 'status', 'created_by', 'no_of_likes', 'no_of_votes', 'no_of_down_votes', 'tags')
 
     def clean_title(self):
-        if Topic.objects.filter(slug=slugify(self.cleaned_data['title'])).exclude(id=self.instance.id):
+        if Topic.objects.filter(slug=slugify(cleanedSlug(self.cleaned_data['title']))).exclude(id=self.instance.id):
             raise forms.ValidationError('Topic with this Name already exists.')
 
         return self.cleaned_data['title']
@@ -109,10 +115,10 @@ class TopicForm(forms.ModelForm):
         instance.title = self.cleaned_data['title']
         instance.description = self.cleaned_data['description']
         instance.category = self.cleaned_data['category']
+        instance.status = 'Draft'
+        instance.slug = slugify(cleanedSlug(self.cleaned_data['title']))
         if not self.instance.id:
-            instance.slug = slugify(self.cleaned_data['title'])
             instance.created_by = self.user
-            instance.status = 'Draft'
         if commit:
             instance.save()
         return instance

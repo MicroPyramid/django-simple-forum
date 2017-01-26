@@ -56,13 +56,19 @@
                   <div class="topic_count">
                     <span class="category"><a href="#" class="disclosure">{{ topic.category.title }} </a></span>
                     <span class="reply"><i class="fa fa-reply"></i>Replies {{ topic.get_all_comments|length }} </span>
+                    <!--
                     <span class="views"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </span>
+                    -->
                     <span class="likes"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes <span class="topic_likes">{{ topic.no_of_likes }}</span> </span>
                     <span class="users"><i class="fa fa-users" aria-hidden="true"></i> Users <span class="no_of_users">{{ topic.get_topic_users|length }}</span> </span>
                   </div>
                   <div class="user_options pull-right">
                   {% if request.user.is_authenticated %}
                     <ul>
+                      {% if topic.created_by.id == request.user.id %}
+                        <li><a href="{% url 'django_simple_forum:update_topic' topic.slug %}" class="update_topic" id="{{ topic.id }}" data-href="{% url 'django_simple_forum:update_topic' topic.slug %}"><i class="fa fa-edit"></i></a></li>
+                        <li><a href="#" class="delete_topic" id="{{ topic.id }}" data-href="{% url "django_simple_forum:delete_user_topic" topic.slug %}"><i class="fa fa-trash-o"></i></a></li>
+                      {% endif %}
                       <li><a href="#" class="like_topic" id="{{ topic.id }}" data-href="{% url "django_simple_forum:like_topic" topic.slug %}"><i class="fa fa-thumbs-up {% if topic.id|is_topic_like:request.user.id %}active{% endif %}"></i></a></li>
                       <li><a href="#" data-toggle="popover" data-container="body" data-placement="top" type="button" data-html="true"><i class="fa fa-share-alt"></i></a></li>
                       <li><a href="#" data-toggle="modal" data-target=".bs-example-modal-lg"><i class="fa fa-reply"></i>Reply</a></li>
@@ -267,7 +273,9 @@
                 <div class="topic_options">
                   <span class="category"><a href="#" class="gaming">{{ topic.category.title }} </a></span><span class="activity">Updated on {{ topic.updated_on }}</span>
                   <span class="reply"><a href="#"><i class="fa fa-reply"></i>Replies 123 </a></span>
+                  <!--
                   <span class="views"><a href="#"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </a></span>
+                  -->
                   <span class="likes"><a href="#"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes {{ topic.no_of_likes }} </a></span>
                 </div>
                 <div class="topic_users">
@@ -291,6 +299,22 @@
 {% endblock %}
 {% block extra_js %}
 <script type="text/javascript">
+      $('.delete_topic').click(function(e){
+        e.preventDefault();
+        var url = $(this).attr('data-href');
+        if (!confirm("Do you want to delete Topic?")){
+          return;
+        }
+        $.get(url, function(data){
+          if (data.error){
+            alert("Can't be Deleted")
+          }
+          else{
+            alert("Topic Deleted Successfully")
+            window.location="{% url 'django_simple_forum:topic_list' %}"
+          }
+        }, "json");
+      });
       $('form.newcommentform').submit(function(e){
         e.preventDefault();
         var str = $(this).find('.mention').val();

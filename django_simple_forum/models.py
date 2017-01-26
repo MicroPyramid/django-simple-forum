@@ -123,6 +123,9 @@ class ForumCategory(models.Model):
         topics = Topic.objects.filter(category=self, status='Published')
         return topics
 
+    def __str__(self):
+        return self.title
+
 
 class Topic(models.Model):
     title = models.CharField(max_length=2000)

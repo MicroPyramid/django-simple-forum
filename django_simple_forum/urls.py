@@ -12,7 +12,8 @@ from .views import (TopicList, IndexView, ForumLoginView, facebook_login, google
                     BadgeList, BadgeAdd, BadgeDelete, BadgeEdit, BadgeDetailView,
                     UserList, DashboardUserDelete, UserStatus, UserDetail,
                     DashboardUserEdit, DashboardTopicList, DashboardTopicDelete,
-                    TopicDetail, TopicStatus, TopicDelete, TopicEdit)
+                    TopicDetail, TopicStatus, TopicDelete, TopicEdit,
+                    DashboardTopicEdit)
 
 urlpatterns = [
     url(r'^$', TopicList.as_view(), name="topic_list"),
@@ -82,6 +83,8 @@ urlpatterns = [
         DashboardUserEdit.as_view(), name="edit_user"),
 
     url(r'^dashboard/topics/list/$', DashboardTopicList.as_view(), name="topics"),
+    url(r'^dashboard/topics/edit/(?P<slug>[-\w]+)/$',
+        DashboardTopicEdit.as_view(), name="edit_topic"),
     url(r'^dashboard/topics/delete/(?P<slug>[-\w]+)/$',
         DashboardTopicDelete.as_view(), name="delete_topic"),
     url(r'^dashboard/topic/view/(?P<slug>[-\w]+)/$', TopicDetail.as_view(), name="topic_detail"),

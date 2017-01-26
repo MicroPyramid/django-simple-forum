@@ -19,7 +19,13 @@
 	          <select name="parent" id="parent" class="form-control">
 	          	<option value=''>Select A Parent</option>
 	          	{% for each in menus %}
-	          		<option value="{{ each.id }}" {% if category.parent.id == each.id %}selected{% endif %}>{{ each.title }}</option>
+	          		{% if category %}
+	          			{% if category.id != each.id %}
+	          				<option value="{{ each.id }}" {% if category.parent.id == each.id %}selected{% endif %}>{{ each.title }}</option>
+	          			{%  endif %}
+	          		{% else %}
+	          			<option value="{{ each.id }}" {% if category.parent.id == each.id %}selected{% endif %}>{{ each.title }}</option>
+	          		{% endif %}
 	          	{% endfor %}
 	          </select>
 	        </div>

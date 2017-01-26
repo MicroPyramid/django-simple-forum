@@ -56,7 +56,9 @@
                   <div class="topic_count">
                     <span class="category"><a href="#" class="disclosure">{{ topic.category.title }} </a></span>
                     <span class="reply"><i class="fa fa-reply"></i>Replies {{ topic.get_all_comments|length }} </span>
+                    <!--
                     <span class="views"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </span>
+                    -->
                     <span class="likes"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes <span class="topic_likes">{{ topic.no_of_likes }}</span> </span>
                     <span class="users"><i class="fa fa-users" aria-hidden="true"></i> Users <span class="no_of_users">{{ topic.get_topic_users|length }}</span> </span>
                   </div>
@@ -271,7 +273,9 @@
                 <div class="topic_options">
                   <span class="category"><a href="#" class="gaming">{{ topic.category.title }} </a></span><span class="activity">Updated on {{ topic.updated_on }}</span>
                   <span class="reply"><a href="#"><i class="fa fa-reply"></i>Replies 123 </a></span>
+                  <!--
                   <span class="views"><a href="#"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </a></span>
+                  -->
                   <span class="likes"><a href="#"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes {{ topic.no_of_likes }} </a></span>
                 </div>
                 <div class="topic_users">

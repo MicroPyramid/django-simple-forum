@@ -321,3 +321,54 @@ body {
     padding: 15px;
     margin-bottom: 8px;
 }
+
+.content .new.topic {
+  margin-top: 20px !important;
+}
+
+.content .new .update-topic {
+  padding: 20px;
+}
+.content .new .update-topic .form-group {
+  width: 100%;
+  margin: 0px;
+  margin-bottom: 15px;
+}
+.content .new .update-topic .control-label {
+  text-align: left;
+  color: #2b3840;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+.content .new .update-topic .form-control {
+  width: 100%;
+}
+.content .new .update-topic .select2-container{
+  width: 100% !important;
+  background: transparent;
+  box-shadow: none;
+  height: 40px;
+  font-size: 13px;
+}
+.content .new .update-topic .form-control.select2 {
+  width: auto;
+}
+.content .new .update-topic .save_buttons button {
+  display: inline-block;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  color: #fff;
+  padding: 6px 12px;
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 1px;
+  border-radius: 0;
+  border: none;
+}
+.content .new .update-topic .save_buttons button.submit {
+  background: #FE3554;
+}
+.content .new .update-topic .save_buttons button.cancel {
+  background: #2b3840;
+}

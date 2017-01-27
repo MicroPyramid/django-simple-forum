@@ -633,7 +633,10 @@ class TopicEdit(UserMixin, UpdateView):
         return redirect(reverse('django_simple_forum:signup'))
 
     def form_invalid(self, form):
-        return JsonResponse({'error': True, 'response': form.errors})
+        if self.request.is_ajax():
+            return JsonResponse({'error': True, 'response': form.errors})
+        else:
+            return super(TopicEdit, self).form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super(TopicEdit, self).get_context_data(**kwargs)
@@ -652,20 +655,11 @@ class TopicList(ListView):
     template_name = 'forum/topic_list.html'
     context_object_name = "topic_list"
 
-    def dispatch(self, request, *args, **kwargs):
-        # if request.user.is_authenticated():
-        #     if request.user.is_superuser:
-        #         return HttpResponseRedirect(reverse('django_simple_forum:dashboard'))
-        return super(TopicList, self).dispatch(request, *args, **kwargs)
-
 
 class TopicDelete(DeleteView):
     model = Topic
     slug_field = 'slug'
     template_name = 'forum/view_topic.html'
-
-    def get_object(self):
-        return redirect(reverse('django_simple_forum:topic_list'))
 
     def get_success_url(self):
         return redirect(reverse('django_simple_forum:topic_list'))

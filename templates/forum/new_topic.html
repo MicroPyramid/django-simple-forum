@@ -1,0 +1,94 @@
+{% extends 'forum/base.html' %}
+{% block stage %}
+<style type="text/css">
+  .sub_category{
+    display: none;
+  }
+</style>
+<div class="main_container">
+     <div class="container">
+        <div class="row middle_container">
+          {% include 'forum/left_menu.html' %}
+          <div class="main_left_container col-md-9 col-md-pull-3 col-sm-9 col-sm-pull-3 col-sm-8 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-body">
+               <div class="new_topic_container">
+                  <!--<h3 class="create_topic_heading">Please ask your question here</h3>-->
+                  <form name="newtopicform" id="newtopicform" method="post">
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Please enter your question </label>
+                      {{ form.title }}
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputPassword1">Select Category</label>
+                        {{ form.category }}
+                    </div>
+                    <div class="form-group sub_category">
+                      <label for="exampleInputPassword1">Select Sub Category</label>
+                      <select class="form-control" name="sub_category" id="sub_category">
+                          <option value="">Select A Category</option>
+                          {% for category in sub_categories %}
+                            <option value='{{ category.id }}' class='{{ category.parent.id }}'>{{ category.title }}</option>
+                          {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Add Description</label>
+                       {{ form.description }}
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Choose optional tags for this topic</label>
+                       {{ form.tags }}
+                    </div>
+                    <button type="submit" class="btn btn-default">Submit Your Question</button>
+                  </form>
+               </div>
+              </div>
+            </div>
+          </div>
+        </div>
+     </div>
+   </div>
+{% endblock %}
+{% block extra_js %}
+<script type="text/javascript">
+  $('.tags').tagsInput({width:'auto'});
+   CKEDITOR.replace( 'description',
+   {
+   // toolbar :
+   // [
+   // { name: 'basicstyles', items : [ 'Bold','Italic' ] },
+   // { name: 'paragraph', items : [ 'NumberedList','BulletedList','-','Outdent','Indent','-','Blockquote','CreateDiv',
+   // '-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock','-','BidiLtr','BidiRtl' ] },
+   // ],
+   // skin : 'office2003',
+   uiColor: '#ffffff',
+     height:260,
+   //width: 700,
+   });
+  
+
+  $('form#newtopicform').submit(function(e){
+        e.preventDefault();
+        desc = CKEDITOR.instances.id_description.getData();
+        $("[name='description']").val(desc);
+        $.post('', $('form#newtopicform').serialize(), function(data){
+          if(data.error){
+
+            $('div.error').remove();
+            for (var key in data.response) {
+              console.log(key)
+              $('#newtopicform #' + key).after('<div class="error">' + data.response[key] + '</div>');
+            }
+          }
+          else{
+            alert('Your Topic has been created Successfully. Please Wait untill admin accept your Topic!!!!')
+            window.location = "{% url "django_simple_forum:topic_list" %}";
+          }
+        }, 'json');
+      });
+/*    $('#category').change(function(e){
+      $('#sub_category').parent('div').removeClass('sub_category');
+    });
+*/   </script>
+{% endblock %}

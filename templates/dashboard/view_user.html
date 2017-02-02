@@ -1,0 +1,238 @@
+{% extends 'dashboard/dashboard_base.html' %}
+{% block stage %}
+<style type="text/css">
+.active{
+  display:inline-block !important;
+}
+.tab_content{
+  display: none;
+}
+</style>
+
+<div class="content">
+<section id='job_detail'>
+  <div class="job_description_wrap">
+    <div class="job_details">
+      <!-- post details -->
+      <div class="profile_individual">
+        <div class="title_profile">
+          <h4>User Details</h4>
+        </div>
+        <div class='specific_detail'>
+          <div class="left_div">
+            <div class="tile_each">
+              <label>User Name: </label>
+              <span class="description">
+              <span>{{ user.username }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>Email: </label>
+              <span class="description">
+              <span>{{ user.email }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            {% if user_profile.badges.all %}
+            <div class="tile_each">
+              <label>Badges: </label>
+              <span class="description">
+              <span>{% for badge in user_profile.badges.all %}<a href="{% url "django_simple_forum:view_badge" badge.slug %}">{{ badge.title }}</a>{% if forloop.last %}{% else %}, {% endif %}{% endfor %}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            {% endif %}
+          </div>
+          <div class="right_div">
+            <div class="tile_each">
+              <label>Is Active: </label>
+              <span class="description">
+              <span>{% if user.is_active %} True{% else %}False{% endif %}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>User Role: </label>
+              <span class="description">
+              <span>{{ user_profile.user_roles }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+      <div class="tab_button_row">
+      <span class='button gplus linked' panelid='user_topics'><i class="fa fa-check-square-o"></i>User Topics</span>
+      <span class='button gplus linked' panelid='topics_liked'><i class="fa fa-eye"></i>Topics Liked</span>
+      <span class='button gplus linked' panelid='topics_followed'><i class="fa fa-envelope"></i>Topics Followed</span>
+      </div>
+      <div class="tab_content active"  id='user_topics'>
+      {% if user_created_topics %}
+      <h3>User Topics</h3>
+      {% for topic in user_created_topics %}
+        <div class='specific_detail'>
+          <div class="left_div">
+            <div class="tile_each">
+              <label>Title: </label>
+              <span class="description">
+              <a href="{% url "django_simple_forum:topic_detail" topic.slug %}"><span>{{ topic.title }}</span></a>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>Created On: </label>
+              <span class="description">
+              <span>{{ topic.created_on }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>Status: </label>
+              <span class="description">
+              <span>{{ topic.status }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>No of Up Votes: </label>
+              <span class="description">
+              <span>{{ topic.no_of_votes }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>No of Down Votes: </label>
+              <span class="description">
+              <span>{{ topic.no_of_down_votes }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+        {% endfor %}
+        {% else %}
+          No Topics Available for a topic
+        {% endif %}
+      </div>
+      <div class="tab_content"  id='topics_liked'>
+      {% if user_liked_topics %}
+        <h3>Liked Topics</h3>
+      {% for topic in user_liked_topics %}
+        <div class='specific_detail'>
+          <div class="left_div">
+            <div class="tile_each">
+              <label>Title: </label>
+              <span class="description">
+              <a href="{% url "django_simple_forum:topic_detail" topic.topic.slug %}"><span>{{ topic.topic.title }}</span></a>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>Created On: </label>
+              <span class="description">
+              <span>{{ topic.topic.created_on }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>Status: </label>
+              <span class="description">
+              <span>{{ topic.topic.status }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>No of Up Votes: </label>
+              <span class="description">
+              <span>{{ topic.no_of_votes }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>No of Down Votes: </label>
+              <span class="description">
+              <span>{{ topic.no_of_down_votes }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+        {% endfor %}
+        {% else %}
+         User didnt like any topic
+        {% endif %}
+      </div>
+      <div class="tab_content"  id='topics_followed'>
+      {% if user_followed_topics %}
+      <h3>Followed Topics</h3>
+      {% for topic in user_followed_topics %}
+        <div class='specific_detail'>
+          <div class="left_div">
+            <div class="tile_each">
+              <label>Title: </label>
+              <span class="description">
+              <a href="{% url "django_simple_forum:topic_detail" topic.topic.slug %}"><span>{{ topic.topic.title }}</span></a>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>Created On: </label>
+              <span class="description">
+              <span>{{ topic.topic.created_on }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>Followed On: </label>
+              <span class="description">
+              <span>{{ topic.followed_on }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>Status: </label>
+              <span class="description">
+              <span>{{ topic.topic.status }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>No of Up Votes: </label>
+              <span class="description">
+              <span>{{ topic.no_of_votes }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+            <div class="tile_each">
+              <label>No of Down Votes: </label>
+              <span class="description">
+              <span>{{ topic.no_of_down_votes }}</span>
+              </span>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+        {% endfor %}
+        {% else %}
+          User didnot Follow Any Topic
+        {% endif %}
+      </div>
+      <!--/ post details -->
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script type="text/javascript">
+  $('.tab_button_row .button').click(function(e){
+    $(this).addClass('active').siblings().removeClass('active');
+    var id_panel=$(this).attr('panelid');
+    $('#'+id_panel).addClass('active').siblings().removeClass('active');
+  })
+</script>
+{% endblock %}

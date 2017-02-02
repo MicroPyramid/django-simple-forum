@@ -1,0 +1,253 @@
+{% extends 'forum/base.html' %}
+{% load forum_tags %}
+{% load thumbnail %}
+{% block stage %}
+
+<div class="main_container">
+      <div class="container">
+        <div class="row middle_container">
+          {% include 'forum/left_menu.html' %}
+          <div class="main_left_container col-md-9 col-md-pull-3 col-sm-9 col-sm-pull-3 col-sm-8 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <div class="view_topic_container">
+                  <h3 class="create_topic_heading">User Profile</h3>
+                  <div class="user_profile_container">
+                    <div class="profile_container">
+                      <div class="profile_left">
+                        <img src="{% if request.user|user_profile_pic %}{% thumbnail request.user|user_profile_pic "100x100" upscale=True padding=True %}{% else %}//d2pt99vxm3n8bc.cloudfront.net/static/dummy.jpg{% endif %}">
+                        {% ifequal request.user.id|slugify user_profile.user.id|slugify %}
+                        <span class="new_logo file_upload"><a href="#"><i class="fa fa-camera" aria-hidden="true"></i></a></span>
+                        <form name="profilepicform" id="profilepicform"><input type="file" id='file_input' name="profile_pic" id="profile_pic" style="display: none;" onchange="javascript: submitform()"><input type="submit" id='submit' name="submit" style="display: none;">
+                        </form>
+                        <form name="settingsform" id="settingsform"><input type="checkbox" id='sending_mail' name="sending_mail" id="sending_mail" {% if user_profile.send_mailnotifications %}checked{% endif %} value="True">Send Email Notifications<input type="submit" id='submit' name="submit" style="display: none;">
+                        </form>
+                        {% endifequal %}
+                      </div>
+                      <div class="profile_right">
+                        <div class="user_name_email_contact">
+                          <span class="title"><b>Name : </b> {{user_profile.user.username}} </span>
+                          <span class="email"><b>email : </b>{{user_profile.user.email}}</span>
+                          <!--<span class="contact"><b>Contact : </b>+91 99892273555</span>-->
+                        </div>
+                        <div class="categories">
+                        {% for category in user_profile.get_user_topic_categories %}
+                          <span class="category"><a href="{% url "django_simple_forum:forum_category_detail" category.slug %}" class="disclosure" style="background:{{category.color}}!important;"> {{ category.title }} </a></span>
+                        {% endfor %}
+                        </div>
+                        <div class="tags">
+                          <ul class="category_tags">
+                          {% for tag in user_profile.get_user_topic_tags %}
+                            <li class="tag_item"><a href="{% url "django_simple_forum:forum_tags_detail" tag.slug %}">{{tag.title}}</a>
+                            </li>
+                          {% endfor %}
+                          </ul>
+                          <br clear="all">
+                        </div>
+                        <div class="badges">
+                          <ul class="badge_list">
+                          {% for badge in user_profile.badges.all %}
+                            <li class="badge_item"><a class="testlink" href="">{{ badge.title }}<span class="badge">{{ badge.get_users|length }}</span></a></li>
+                            </li>
+                          {% endfor %}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="user_profile_tabs">
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                      <!--<li role="presentation" class="active"><a href="#Users" aria-controls="Users" role="tab" data-toggle="tab">Users</a></li>-->
+                      <li role="presentation"><a href="#Followed" aria-controls="Followed" role="tab" data-toggle="tab">Topics</a></li>
+                      <li role="presentation"><a href="#Favourites" aria-controls="Favourites" role="tab" data-toggle="tab">Followed Topics</a></li>
+                      <li role="presentation"><a href="#Favourites1" aria-controls="Favourites1" role="tab" data-toggle="tab">Liked Topics</a></li>
+                    </ul>
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                      <div role="tabpanel" class="tab-pane active" id="Followed">
+                        <div class="topic_container">
+                          <!-- topic_block starts here -->
+                          {% if user_profile.get_topics %}
+                          {% for topic in user_profile.get_topics %}
+                          <div class="topic_block">
+                            <div class="topic_title">
+                            <a href="{% url "django_simple_forum:view_topic" topic.slug %}">{{ topic.title }}</a>
+                            </div>
+                            <div class="topic_options">
+                             <span class="category"><a href="#" class="gaming">{{ topic.category.title }} </a></span><span class="activity">Updated on {{ topic.updated_on }}</span>
+                            <span class="reply"><a href="#"><i class="fa fa-reply"></i>Replies 123 </a></span>
+                            <span class="views"><a href="#"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </a></span>
+                            <span class="likes"><a href="#"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes {{ topic.no_of_likes }} </a></span>
+                            </div>
+                            <div class="topic_users">
+                              <ul class="users_list">
+                                {% for user in topic.get_topic_users %}
+                                  <li><a href="{% url "django_simple_forum:user_details" user.user.username %}" title="{{ user.user.username }}"><img src="{% if user.profile_pic %}{% thumbnail user.profile_pic "100x100" upscale=True padding=True %}{% else %}//d2pt99vxm3n8bc.cloudfront.net/static/dummy.jpg{% endif %}"></a></li>
+                                {% endfor %}
+                              </ul>
+                            </div>
+                           <br clear="all">
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        No Topics Available Now
+                          <!-- topic_block ends here -->
+                        {% endif %}
+                        </div>
+                      </div>
+                      <div role="tabpanel" class="tab-pane" id="Favourites">
+                        <div class="topic_container">
+                          {% if user_profile.get_followed_topics %}
+                          {% for topic in user_profile.get_followed_topics %}
+                          <div class="topic_block">
+                            <div class="topic_title">
+                            <a href="{% url "django_simple_forum:view_topic" topic.slug %}">{{ topic.title }}</a>
+                            </div>
+                            <div class="topic_options">
+                             <span class="category"><a href="#" class="gaming">{{ topic.category.title }} </a></span><span class="activity">Updated on {{ topic.updated_on }}</span>
+                            <span class="reply"><a href="#"><i class="fa fa-reply"></i>Replies 123 </a></span>
+                            <span class="views"><a href="#"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </a></span>
+                            <span class="likes"><a href="#"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes {{ topic.no_of_likes }} </a></span>
+                            </div>
+                            <div class="topic_users">
+                              <ul class="users_list">
+                                {% for user in topic.get_topic_users %}
+                                  <li><a href="{% url "django_simple_forum:user_details" user.user.username %}" title="{{ user.user.username }}"><img src="{% if user.profile_pic %}{% thumbnail user.profile_pic "100x100" upscale=True padding=True %}{% else %}//d2pt99vxm3n8bc.cloudfront.net/static/dummy.jpg{% endif %}"></a></li>
+                                {% endfor %}
+                              </ul>
+                            </div>
+                           <br clear="all">
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        No Topics Available Now
+                        {% endif %}
+
+                        </div>
+                      </div>
+                      <div role="tabpanel" class="tab-pane" id="Favourites1">
+                        <div class="topic_container">
+                        {% if user_profile.get_liked_topics %}
+                          {% for topic in user_profile.get_liked_topics %}
+                          <div class="topic_block">
+                            <div class="topic_title">
+                            <a href="{% url "django_simple_forum:view_topic" topic.slug %}">{{ topic.title }}</a>
+                            </div>
+                            <div class="topic_options">
+                             <span class="category"><a href="#" class="gaming">{{ topic.category.title }} </a></span><span class="activity">Updated on {{ topic.updated_on }}</span>
+                            <span class="reply"><a href="#"><i class="fa fa-reply"></i>Replies 123 </a></span>
+                            <span class="views"><a href="#"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </a></span>
+                            <span class="likes"><a href="#"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes {{ topic.no_of_likes }} </a></span>
+                            </div>
+                            <div class="topic_users">
+                              <ul class="users_list">
+                                {% for user in topic.get_topic_users %}
+                                  <li><a href="{% url "django_simple_forum:user_details" user.user.username %}" title="{{ user.user.username }}"><img src="{% if user.profile_pic %}{% thumbnail user.profile_pic "100x100" upscale=True padding=True %}{% else %}//d2pt99vxm3n8bc.cloudfront.net/static/dummy.jpg{% endif %}"></a></li>
+                                {% endfor %}
+                              </ul>
+                            </div>
+                           <br clear="all">
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        No Topics Available Now
+                        {% endif %}
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% if user_profile.get_user_suggested_topics %}
+                <h4 class="inner_page_heading">Suggested Topics</h4>
+                <div class="topic_container">
+                  {% for topic in user_profile.get_user_suggested_topics %}
+                          <div class="topic_block">
+                            <div class="topic_title">
+                            <a href="{% url "django_simple_forum:view_topic" topic.slug %}">{{ topic.title }}</a>
+                            </div>
+                            <div class="topic_options">
+                             <span class="category"><a href="#" class="gaming">{{ topic.category.title }} </a></span><span class="activity">Updated on {{ topic.updated_on }}</span>
+                            <span class="reply"><a href="#"><i class="fa fa-reply"></i>Replies 123 </a></span>
+                            <span class="views"><a href="#"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </a></span>
+                            <span class="likes"><a href="#"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes {{ topic.no_of_likes }} </a></span>
+                            </div>
+                            <div class="topic_users">
+                              <ul class="users_list">
+                                {% for user in topic.get_topic_users %}
+                                  <li><a href="{% url "django_simple_forum:user_details" user.user.username %}" title="{{ user.user.username }}"><img src="{% if user.profile_pic %}{% thumbnail user.profile_pic "100x100" upscale=True padding=True %}{% else %}//d2pt99vxm3n8bc.cloudfront.net/static/dummy.jpg{% endif %}"></a></li>
+                                {% endfor %}
+                              </ul>
+                            </div>
+                           <br clear="all">
+                        </div>
+                        {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+{% block extra_js %}
+<script type="text/javascript">
+
+  $('.file_upload').click(function(e){
+    $('#file_input').click();
+  });
+  $('body').append('<div id="ajaxBusy"><p><img src="http://d2pt99vxm3n8bc.cloudfront.net/static/img/loader-gif.gif" height="100px" width="100px"></p></div>');
+  $('#ajaxBusy').css({
+    display:"none",
+    margin:"0px",
+    paddingLeft:"0px",
+    paddingRight:"0px",
+    paddingTop:"0px",
+    paddingBottom:"0px",
+    position:"absolute",
+    left:"55%",
+    top:"55%",
+    width:"auto",
+  });
+  $(document).ajaxStart(function(){
+    $('#ajaxBusy').show();
+  }).ajaxStop(function(){
+    $('#ajaxBusy').hide();
+  });
+
+  function submitform(){
+      $('form#profilepicform').submit();
+  }
+
+  $('form#profilepicform').ajaxForm({
+    type:'POST',
+    dataType:'json',
+    url: "{% url "django_simple_forum:user_profile_pic" %}",
+    data:$('#profilepicform').serialize(),
+    success: function(data) {
+      if (data.error == false) {
+        alert(data.response)
+        window.location = ".";
+      } else {
+        alert(data.response)
+      }
+    }
+  });
+  $('#sending_mail').click(function(e){
+    e.preventDefault();
+    $.post("{% url 'django_simple_forum:user_settings' %}", {'sending_mail': $(this).val()}, function(data){
+        if (data.error == false) {
+          alert(data.response);
+          window.location = '.'
+        } else {
+          $('div.error').remove();
+          for (var key in data.response) {
+            $('#' + key).after('<div class="error">' + data.response[key] + '</div>');
+          }
+        }
+    }, 'json');
+});
+</script>
+{% endblock %}

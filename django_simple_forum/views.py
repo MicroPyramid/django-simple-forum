@@ -31,9 +31,9 @@ except ImportError:
 from microurl import google_mini
 
 from .forms import LoginForm
-from .models import ForumCategory, STATUS, Badge, Topic, Tags, UserProfile, UserTopics, Timeline, Facebook,\
-    Google, Comment
-from .mixins import AdminMixin, UserMixin, CanUpdateTopicMixin
+from .models import ForumCategory, STATUS, Badge, Topic, Tags, UserProfile, UserTopics, Timeline,\
+    Facebook, Google, Comment, Vote
+from .mixins import AdminMixin, LoginRequiredMixin, CanUpdateTopicMixin
 from .forms import CategoryForm, BadgeForm, RegisterForm, TopicForm, CommentForm, UserProfileForm,\
     ChangePasswordForm, UserChangePasswordForm, ForgotPasswordForm
 # from mpcomp.facebook import GraphAPI, get_access_token_from_code
@@ -447,7 +447,7 @@ class ForumLoginView(FormView):
         return JsonResponse({'error': True, 'response': form.errors})
 
 
-class TopicAdd(UserMixin, CreateView):
+class TopicAdd(LoginRequiredMixin, CreateView):
     model = Topic
     form_class = TopicForm
     template_name = "forum/new_topic.html"
@@ -555,7 +555,11 @@ class TopicList(ListView):
     context_object_name = "topic_list"
 
     def get_queryset(self):
-        queryset = Topic.objects.filter(Q(status='Published')|Q(created_by=self.request.user)).order_by('-created_on')
+        if self.request.user.is_authenticated():
+            query = Q(status='Published')|Q(created_by=self.request.user)
+        else:
+            query = Q(status='Published')
+        queryset = Topic.objects.filter(query).order_by('-created_on')
         return queryset
 
 class TopicView(TemplateView):
@@ -610,7 +614,7 @@ def comment_mentioned_users_list(data):
     return result
 
 
-class CommentAdd(UserMixin, CreateView):
+class CommentAdd(LoginRequiredMixin, CreateView):
     model = Topic
     form_class = CommentForm
     template_name = 'forum/view_topic.html'
@@ -671,7 +675,7 @@ class CommentAdd(UserMixin, CreateView):
         return context
 
 
-class CommentEdit(UserMixin, UpdateView):
+class CommentEdit(LoginRequiredMixin, UpdateView):
     model = Comment
     template_name = "dashboard/edit_user.html"
     form_class = CommentForm
@@ -718,7 +722,7 @@ class CommentEdit(UserMixin, UpdateView):
         return context
 
 
-class CommentDelete(UserMixin, DeleteView):
+class CommentDelete(LoginRequiredMixin, DeleteView):
     model = Comment
     slug_field = 'comment_id'
     template_name = "dashboard/categories.html"
@@ -738,7 +742,7 @@ class CommentDelete(UserMixin, DeleteView):
             return JsonResponse({'error': False, 'response': 'Only commented user can delete this comment'})
 
 
-class TopicLike(UserMixin, View):
+class TopicLike(LoginRequiredMixin, View):
     model = Topic
     slug_field = 'slug'
 
@@ -920,7 +924,7 @@ class UserDetail(AdminMixin, TemplateView):
         return context
 
 
-class TopicFollow(UserMixin, View):
+class TopicFollow(LoginRequiredMixin, View):
     model = Topic
     slug_field = 'slug'
 
@@ -953,63 +957,40 @@ class TopicFollow(UserMixin, View):
                              'is_followed': user_topic.is_followed})
 
 
-class TopicVotes(UserMixin, View):
-    model = Topic
-    slug_field = 'slug'
+class TopicVoteUpView(LoginRequiredMixin, View):
 
-    def get_object(self):
-        return get_object_or_404(Topic, slug=self.kwargs['slug'])
-
-    def get_success_url(self):
-        return redirect(reverse('django_simple_forum:topic_list'))
-
-    def post(self, request, *args, **kwargs):
-        topic = self.get_object()
-        user_profile = get_object_or_404(UserProfile, user=request.user)
-        user_topics = UserTopics.objects.filter(user=request.user, topic=topic)
-
-        if user_topics:
-            user_topic = user_topics[0]
-        else:
-            user_topic = UserTopics.objects.create(
-                user=request.user, topic=topic)
-
-        if user_profile.used_votes < 15:
-            if self.request.POST.get('vote') == 'up_vote':
-                user_topic.no_of_votes = int(user_topic.no_of_votes) + 1
-                topic.no_of_votes = int(topic.no_of_votes) + 1
-                user_profile.used_votes = int(user_profile.used_votes) + 1
-                if user_topic.no_of_down_votes > 0:
-                    user_profile.used_votes = user_profile.used_votes - \
-                        user_topic.no_of_down_votes
-                    topic.no_of_down_votes = topic.no_of_down_votes - \
-                        user_topic.no_of_down_votes
-                    user_topic.no_of_down_votes = 0
-
-                timeline_activity(
-                    user=self.request.user, content_object=topic, namespace='Vote the', event_type="vote-topic")
-            elif self.request.POST.get('vote') == 'down_vote':
-                user_topic.no_of_down_votes = user_topic.no_of_down_votes + 1
-                topic.no_of_down_votes = topic.no_of_down_votes + 1
-                user_profile.used_votes = user_profile.used_votes + 1
-                if user_topic.no_of_votes > 0:
-                    user_profile.used_votes = user_profile.used_votes - \
-                        user_topic.no_of_votes
-                    topic.no_of_votes = topic.no_of_votes - \
-                        user_topic.no_of_votes
-                    user_topic.no_of_votes = 0
-
-                timeline_activity(user=self.request.user, content_object=topic,
-                                  namespace='Un vote the', event_type="unvote-topic")
-
+    def get(self, request, *args, **kwargs):
+        topic = get_object_or_404(Topic, slug=kwargs.get("slug"))
+        vote = topic.votes.filter(user=request.user).first()
+        if not vote:
+            vote = Vote.objects.create(user=request.user, type="U")
+            topic.votes.add(vote)
             topic.save()
-            user_topic.save()
-            user_profile.save()
-            return JsonResponse({'error': False,
-                                 'response': 'Successfully Followed the topic',
-                                 'no_of_votes': topic.no_of_votes,
-                                 'no_of_down_votes': topic.no_of_down_votes})
-        return JsonResponse({'error': True, 'response': 'You have already used your maximum no of your votes'})
+            status = "up"
+        elif vote and vote.type == "D":
+            vote.delete()
+            status = "removed"
+        else:
+            status = "neutral"
+        return JsonResponse({"status": status})
+
+
+class TopicVoteDownView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        topic = get_object_or_404(Topic, slug=kwargs.get("slug"))
+        vote = topic.votes.filter(user=request.user).first()
+        if not vote:
+            vote = Vote.objects.create(user=request.user, type="D")
+            topic.votes.add(vote)
+            topic.save()
+            status = "down"
+        elif vote and vote.type == "U":
+            vote.delete()
+            status = "removed"
+        else:
+            status = "neutral"
+        return JsonResponse({"status": status})
 
 
 class ChangePassword(AdminMixin, FormView):
@@ -1030,7 +1011,7 @@ class ChangePassword(AdminMixin, FormView):
         return JsonResponse({'error': True, 'response': form.errors})
 
 
-class UserProfileView(UserMixin, TemplateView):
+class UserProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'forum/profile.html'
 
     def get_context_data(self, **kwargs):
@@ -1052,7 +1033,7 @@ class ProfileView(TemplateView):
         return context
 
 
-class UserProfilePicView(UserMixin, View):
+class UserProfilePicView(LoginRequiredMixin, View):
     model = UserProfile
 
     def get_object(self):
@@ -1071,7 +1052,7 @@ class UserProfilePicView(UserMixin, View):
             return JsonResponse({'error': True, 'response': 'Please Upload Your Profile pic'})
 
 
-class UserSettingsView(UserMixin, View):
+class UserSettingsView(LoginRequiredMixin, View):
     model = UserProfile
 
     def get_object(self):
@@ -1304,7 +1285,7 @@ def comment_mentioned_users_list(data):
     return result
 
 
-class UserChangePassword(UserMixin, FormView):
+class UserChangePassword(LoginRequiredMixin, FormView):
     template_name = 'forum/topic_list.html'
     form_class = UserChangePasswordForm
 

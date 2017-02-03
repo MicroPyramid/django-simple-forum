@@ -16,14 +16,12 @@
                  {% for topic in topic_list %}
                   <div class="topic_block">
                     <div class="topic_title">
-                      <a href="{% url "django_simple_forum:view_topic" topic.slug %}">{{ topic.title }}</a>
+                    <a href="{% url "django_simple_forum:view_topic" topic.slug %}">{{ topic.title }}</a>
                     </div>
                     <div class="topic_options">
-                     <span class="category">
-                      <a href="#" class="gaming">{{ topic.category.title }} </a></span><span class="activity">Updated on {{ topic.updated_on }}</span>
-                    <span class="reply"><a href="#"><i class="fa fa-reply"></i>Replies 0 </a></span>
-                    <span class="views"><a href="#"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </a></span>
-                    <span class="likes"><a href="#"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes {{ topic.no_of_likes }} </a></span>
+                     <span class="category"><a href="#" class="gaming">{{ topic.category.title }} </a></span><span class="activity">Updated on {{ topic.updated_on }}</span>
+                    <span class="reply"><a href="#"><i class="fa fa-reply"></i>Replies {{ topic.get_all_comments.count }} </a></span>
+                    <!-- <span class="views"><a href="#"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </a></span> -->
                     </div>
                     <div class="topic_users">
                       <ul class="users_list">
@@ -31,8 +29,10 @@
                         <li><a href="{% url "django_simple_forum:user_details" user.user.username %}" title="{{ user.user.username }}"><img src="{% if user.profile_pic %}{% thumbnail user.profile_pic "100x100" upscale=True padding=True %}{% else %}//d2pt99vxm3n8bc.cloudfront.net/static/dummy.jpg{% endif %}"></a></li>
                         {% endfor %}
                       </ul>
-                      <a href="{% url 'django_simple_forum:topic_update' slug=topic.slug %}">update</a>
-                      <a href="{% url 'django_simple_forum:delete_topic' slug=topic.slug %}">delete</a>
+                      {% if topic.created_by == request.user %}
+                        <a href="{% url 'django_simple_forum:topic_update' topic.slug %}"> Update</a>
+                        <a href="{% url 'django_simple_forum:delete_topic' topic.slug %}"> delete </a>
+                      {% endif %}
                     </div>
                      <br clear="all">
                   </div>

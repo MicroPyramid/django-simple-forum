@@ -8,10 +8,7 @@
   }
   .reply_comments{
     margin-left: 40px;
-  }
-  .fade{
-    display: none !important;
-  }
+  } 
 </style>
 <div class="main_container">
   <div class="container">
@@ -22,7 +19,7 @@
           <div class="panel-body">
           {% if not request.user.is_authenticated %}
           <!-- alert-box -->
-            <div class="alert alert-warning fade show" role="alert">
+            <div class="alert alert-warning fade show" id="alert" role="alert">
               <button type="button" class="close" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -34,11 +31,15 @@
               <div class="main_view_container">
                 <div class="view_content_description">
                   <h3 class="create_topic_heading">{{ topic.title|capfirst }}</h3>
+                  {% if topic.created_by == request.user %}
+                    <a href="{% url 'django_simple_forum:topic_update' topic.slug %}"> Update</a>
+                    <a href="{% url 'django_simple_forum:delete_topic' topic.slug %}"> delete </a>
+                  {% endif %}
                   <div class="follow_votes">
                     {% if request.user.is_authenticated %}
                     <span class="follow" ><a href="#" class="follow_topic" data-href="{% url "django_simple_forum:follow_topic" topic.slug %}">{% if topic.id|is_topic_followed:request.user.id %}Followed{% else %}Follow{% endif %}</a></span>
                     {% endif %}
-                    <span class="votes"><a href="#" class="loss vote_topic" id="down_vote" data-href="{% url "django_simple_forum:topic_vote_down" topic.slug %}"><span id="down_votes">{{ topic.down_votes_count }}</span><i class="fa fa-minus"></i></a>Votes<a href="#" class="gain vote_topic" id="up_vote" data-href="{% url "django_simple_forum:topic_vote_up" topic.slug %}"><span id="up_votes">{{ topic.up_votes_count }}</span><i class="fa fa-plus"></i></a></span>
+                    <span class="votes"><a href="#" class="loss vote_topic" id="down_vote" data-href="{% url "django_simple_forum:topic_vote_down" topic.slug %}"><i class="fa fa-minus"></i><span id="down_votes">{{ topic.down_votes_count }}</span></a>Votes<a href="#" class="gain vote_topic" id="up_vote" data-href="{% url "django_simple_forum:topic_vote_up" topic.slug %}"><i class="fa fa-plus"></i><span id="up_votes">{{ topic.up_votes_count }}</span></a></span>
                   </div>
                   <p>{{topic.description|safe}}</p>
                   <div class="tags">
@@ -70,15 +71,13 @@
                     <span class="category"><a href="#" class="disclosure">{{ topic.category.title }} </a></span>
                     <span class="reply"><i class="fa fa-reply"></i>Replies {{ topic.get_all_comments|length }} </span>
                     <span class="views"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </span>
-                    <span class="likes"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes <span class="topic_likes">{{ topic.no_of_likes }}</span> </span>
                     <span class="users"><i class="fa fa-users" aria-hidden="true"></i> Users <span class="no_of_users">{{ topic.get_topic_users|length }}</span> </span>
                   </div>
                   <div class="user_options pull-right">
                   {% if request.user.is_authenticated %}
                     <ul>
-                      <li><a href="#" class="like_topic" id="{{ topic.id }}" data-href="{% url "django_simple_forum:like_topic" topic.slug %}"><i class="fa fa-thumbs-up {% if topic.id|is_topic_like:request.user.id %}active{% endif %}"></i></a></li>
                       <li><a href="#" data-toggle="popover" data-container="body" data-placement="top" type="button" data-html="true"><i class="fa fa-share-alt"></i></a></li>
-                      <li><a href="#" data-toggle="modal" data-target=".bs-example-modal-lg"><i class="fa fa-reply"></i>Reply</a></li>
+                      <li><a href="#" data-toggle="modal" data-target="#reply_comment"><i class="fa fa-reply"></i>Reply</a></li>
                     </ul>
                   {% endif %}
                     {% for comment in topic.get_all_comments %}
@@ -112,7 +111,7 @@
                       </div>
                     {% endfor %}
                     <!-- reply modal start here -->
-                    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+                    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="reply_comment">
                       <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                           <div class="modal-header">
@@ -161,6 +160,9 @@
                     <ul>
                       <li><a href="#"><img src="{% if comment.commented_by|user_profile_pic %}{% thumbnail comment.commented_by|user_profile_pic "100x100" upscale=True padding=True %}{% else %}//d2pt99vxm3n8bc.cloudfront.net/static/dummy.jpg{% endif %}"> <span class="text">Replied By<small>{{ comment.commented_by.username }}</small></span></a></li>
                     </ul>
+                    <div class="follow_votes">
+                      <span class="votes"><a href="#" class="loss vote_topic comment_down_vote" data-href="{% url "django_simple_forum:comment_vote_down" comment.id %}"><i class="fa fa-minus"></i><span class="comment_down_votes_count">{{ comment.down_votes_count }}</span></a>Votes<a href="#" class="gain vote_topic comment_up_vote" data-href="{% url "django_simple_forum:comment_vote_up" comment.pk %}"><i class="fa fa-plus"></i><span class="comment_up_votes_count">{{ comment.up_votes_count }}</span></a></span>
+                    </div>
                   </div>
                   <!--  <div class="topic_img_block"><img src="http://www.hdwallpapers.in/walls/ice_age_collision_course_5k-wide.jpg" /></div> -->
                   <p class="auto_link">{{ comment.comment|safe }}
@@ -281,7 +283,6 @@
                   <span class="category"><a href="#" class="gaming">{{ topic.category.title }} </a></span><span class="activity">Updated on {{ topic.updated_on }}</span>
                   <span class="reply"><a href="#"><i class="fa fa-reply"></i>Replies 123 </a></span>
                   <span class="views"><a href="#"><i class="fa fa-eye"></i> Views {{ topic.no_of_views }} </a></span>
-                  <span class="likes"><a href="#"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes {{ topic.no_of_likes }} </a></span>
                 </div>
                 <div class="topic_users">
                   <ul class="users_list">
@@ -491,9 +492,46 @@ $('.delete-comment').click(function(e){
       }
     });
   });
+  /* comment votes */
+  $(".comment_down_vote").click(function(e){
+    e.preventDefault();
+    url = $(this).attr("data-href");
+    $down_votes = $(this).parent().find("span.comment_down_votes_count")
+    $up_votes = $(this).parent().find("span.comment_up_votes_count")
+    console.log($down_votes.text())
+    console.log($up_votes.text())
+    $.get(url, function(response){
+      if(response.status == "down"){
+        count = parseInt($down_votes.text())
+        $down_votes.text(count + 1);
+      }
+      else if(response.status == "removed"){
+        count = parseInt($up_votes.text())
+        $up_votes.text(count - 1);
+      }
+    });
+  });
+  $(".comment_up_vote").click(function(e){
+    e.preventDefault();
+    url = $(this).attr("data-href");
+    $down_votes = $(this).parent().find("span.comment_down_votes_count")
+    $up_votes = $(this).parent().find("span.comment_up_votes_count")
+    console.log($down_votes.text())
+    console.log($up_votes.text())
+    $.get(url, function(response){
+      if(response.status == "up"){
+        count = parseInt($up_votes.text())
+        $up_votes.text(count + 1);
+      }
+      else if(response.status == "removed"){
+        count = parseInt($down_votes.text())
+        $down_votes.text(count - 1);
+      }
+    });
+  });
 {% else %}
-  $("#up_vote, #down_vote, .close").click(function(){
-    $(".alert").toggleClass("fade");
+  $("#up_vote, #down_vote, #alert").click(function(){
+    $("#alert").toggleClass("fade");
   });
 {% endif %}
 </script>

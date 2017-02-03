@@ -547,9 +547,6 @@ class TopicUpdateView(CanUpdateTopicMixin, UpdateView):
         return JsonResponse({"error": False, "success_url": reverse('django_simple_forum:signup')})
 
 
-
-
-
 class TopicList(ListView):
     template_name = 'forum/topic_list.html'
     context_object_name = "topic_list"
@@ -614,6 +611,43 @@ def comment_mentioned_users_list(data):
     return result
 
 
+class CommentVoteUpView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        comment = get_object_or_404(Comment, pk=kwargs.get("pk"))
+        vote = comment.votes.filter(user=request.user).first()
+        if not vote:
+            vote = Vote.objects.create(user=request.user, type="U")
+            comment.votes.add(vote)
+            comment.save()
+            status = "up"
+        elif vote and vote.type == "D":
+            vote.delete()
+            status = "removed"
+        else:
+            status = "neutral"
+        return JsonResponse({"status": status})
+
+
+class CommentVoteDownView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        comment = get_object_or_404(Comment, pk=kwargs.get("pk"))
+        vote = comment.votes.filter(user=request.user).first()
+        if not vote:
+            vote = Vote.objects.create(user=request.user, type="D")
+            comment.votes.add(vote)
+            comment.save()
+            status = "down"
+        elif vote and vote.type == "U":
+            vote.delete()
+            status = "removed"
+        else:
+            status = "neutral"
+        return JsonResponse({"status": status})
+
+
+
 class CommentAdd(LoginRequiredMixin, CreateView):
     model = Topic
     form_class = CommentForm
@@ -643,7 +677,7 @@ class CommentAdd(LoginRequiredMixin, CreateView):
             subject = "New Comment For The Topic " + (comment.topic.title)
             rendered = t.render(c)
             mfrom = settings.DEFAULT_FROM_EMAIL
-            Memail(mto, mfrom, subject, rendered)
+            Memail(mto, mfrom, subject, rendered, email_template_name=None, context=None)
 
         for user in comment.mentioned.all():
             mto = [user.user.email]
@@ -708,7 +742,7 @@ class CommentEdit(LoginRequiredMixin, UpdateView):
         return redirect(reverse('django_simple_forum:users'))
 
     def get_form_kwargs(self):
-        kwargs = super(CommentAdd, self).get_form_kwargs()
+        kwargs = super(CommentEdit, self).get_form_kwargs()
         kwargs.update({'user': self.request.user})
         return kwargs
 
@@ -818,17 +852,22 @@ class ForumCategoryView(ListView):
     template_name = 'forum/topic_list.html'
 
     def get_queryset(self, queryset=None):
+        if self.request.user.is_authenticated():
+            query = Q(status="Published")|Q(created_by=self.request.user)
+        else:
+            query = Q(status="Published")
         category = get_object_or_404(ForumCategory, slug=self.kwargs.get("slug"))
-        topics = category.topic_set.filter(Q(status="Published")|Q(created_by=self.request.user)) 
+        topics = category.topic_set.filter(query) 
         return topics
 
 
-class ForumTagsView(ListView):
+class ForumTagsView(TemplateView):
     template_name = 'forum/topic_list.html'
 
     def get_context_data(self, **kwargs):
+        tag = get_object_or_404(Tags, slug=kwargs.get("slug"))
         context = super(ForumTagsView, self).get_context_data(**kwargs)
-        topics = self.get_object().get_topics()
+        topics = tag.get_topics()
         context['topic_list'] = topics
         return context
 
@@ -1016,7 +1055,10 @@ class UserProfileView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(UserProfileView, self).get_context_data(**kwargs)
-        user_profile = get_object_or_404(UserProfile, user=self.request.user)
+        user_role = "Publisher"
+        if self.request.user.is_superuser:
+            user_role = "Admin"
+        user_profile, _ = UserProfile.objects.get_or_create(user=self.request.user, user_roles=user_role)
         context['user_profile'] = user_profile
         return context
 

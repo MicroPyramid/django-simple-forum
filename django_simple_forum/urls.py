@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^topic/follow/(?P<slug>[-\w]+)/$', views.TopicFollow.as_view(), name="follow_topic"),
     url(r'^topic/votes/(?P<slug>[-\w]+)/up/$', views.TopicVoteUpView.as_view(), name="topic_vote_up"),
     url(r'^topic/votes/(?P<slug>[-\w]+)/down/$', views.TopicVoteDownView.as_view(), name="topic_vote_down"),
+
     url(r'^mentioned-users/(?P<topic_id>[-\w]+)/$', views.get_mentioned_user, name="get_mentioned_user"),
     url(r'^user/profile/(?P<user_name>[-\w]+)/$', views.ProfileView.as_view(), name="view_profile"),
     url(r'^change-password/$', views.UserChangePassword.as_view(), name="user_change_password"),
@@ -36,6 +37,8 @@ urlpatterns = [
     url(r'^user/(?P<user_name>[a-zA-Z0-9_-]+.*?)/$', views.UserDetailView.as_view(), name="user_details"),
 
     url(r'^comment/add/$', views.CommentAdd.as_view(), name="new_comment"),
+    url(r'^comment/votes/(?P<pk>[-\w]+)/up/$', views.CommentVoteUpView.as_view(), name="comment_vote_up"),
+    url(r'^comment/votes/(?P<pk>[-\w]+)/down/$', views.CommentVoteDownView.as_view(), name="comment_vote_down"),
 
     url(r'^dashboard/$', views.LoginView.as_view(), name="dashboard"),
     # url(r'^dashboard/$', DashboardView.as_view(), name="dashboard"),

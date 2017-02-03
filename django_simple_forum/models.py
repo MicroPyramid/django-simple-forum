@@ -5,16 +5,15 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 import hashlib
 from datetime import datetime
 
-
-USER_ROLES = (
-    ('Admin', 'Admin'),
-    ('Publisher', 'Publisher'),
-)
-
 STATUS = (
     ('Draft', 'Draft'),
     ('Published', 'Published'),
     ('Disabled', 'Disabled'),
+)
+
+USER_ROLES = (
+    ('Admin', 'Admin'),
+    ('Publisher', 'Publisher'),
 )
 
 User = settings.AUTH_USER_MODEL
@@ -50,11 +49,12 @@ def img_url(self, filename):
 
 # user profile to store no of votes available to user, badges for a topic, user roles,
 class UserProfile(models.Model):
+    file_prepend = "forum_user/profilepics/"
+    
     user = models.ForeignKey(User)
     used_votes = models.IntegerField(default='0')
     user_roles = models.CharField(choices=USER_ROLES, max_length=10)
     badges = models.ManyToManyField(Badge)
-    file_prepend = "forum_user/profilepics/"
     profile_pic = models.FileField(
         max_length=500, null=True, blank=True, upload_to=img_url)
     send_mailnotifications = models.BooleanField(default=False)
@@ -120,15 +120,27 @@ class ForumCategory(models.Model):
     description = models.TextField()
     parent = models.ForeignKey('self', blank=True, null=True)
 
-    # def get_topics(self):
-    #     topics = Topic.objects.filter(category=self, status='Published')
-    #     return topics
+    def get_topics(self):
+        topics = Topic.objects.filter(category=self, status='Published')
+        return topics
 
     def __str__(self):
         return self.title
 
-class Topic(models.Model):
 
+class Vote(models.Model):
+    TYPES = (
+        ("U", "Up"),
+        ("D", "Down"),
+    )
+    user = models.ForeignKey(User)
+    type = models.CharField(choices=TYPES, max_length=1)
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user
+
+class Topic(models.Model):
     title = models.CharField(max_length=2000)
     description = models.TextField()
     created_by = models.ForeignKey(User)
@@ -140,8 +152,7 @@ class Topic(models.Model):
     slug = models.SlugField(max_length=1000)
     tags = models.ManyToManyField(Tags)
     no_of_likes = models.IntegerField(default='0')
-    no_of_votes = models.IntegerField(default='0')
-    no_of_down_votes = models.IntegerField(default='0')
+    votes = models.ManyToManyField(Vote)
 
     def get_comments(self):
         comments = Comment.objects.filter(topic=self, parent=None)
@@ -163,13 +174,18 @@ class Topic(models.Model):
         users = UserProfile.objects.filter(user_id__in=set(all_users))
         return users
 
-    def get_total_of_votes(self):
-        no_of_votes = self.no_of_votes + self.no_of_down_votes
-        return no_of_votes
+    # def get_total_of_votes(self):
+    #     no_of_votes = self.no_of_votes + self.no_of_down_votes
+    #     return no_of_votes
+
+    def up_votes_count(self):
+        return self.votes.filter(type="U").count()
+
+    def down_votes_count(self):
+        return self.votes.filter(type="D").count()  
 
     def __str__(self):
-        return self.title
-
+        return self.title      
 
 # user followed topics
 class UserTopics(models.Model):
@@ -190,10 +206,17 @@ class Comment(models.Model):
     updated_on = models.DateTimeField(auto_now_add=True)
     parent = models.ForeignKey("self", blank=True, null=True, related_name="comment_parent")
     mentioned = models.ManyToManyField(User, related_name="mentioned_users")
+    votes = models.ManyToManyField(Vote)
 
     def get_comments(self):
         comments = self.comment_parent.all()
         return comments
+
+    def up_votes_count(self):
+        return self.votes.filter(type="U").count()
+
+    def down_votes_count(self):
+        return self.votes.filter(type="D").count()
 
 
 # user activity

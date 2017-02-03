@@ -1,41 +1,42 @@
 import json
 import urllib
 import requests
+from urllib.parse import urlparse
+from datetime import datetime
 
 from django.contrib.auth import logout, login, load_backend
-from django.http.response import HttpResponseRedirect, HttpResponse
-from django.views.generic.edit import FormView
-from django.core.urlresolvers import reverse
-from django.views.generic import (TemplateView, UpdateView,
-                                  ListView, CreateView, DetailView, DeleteView, View)
-from django.shortcuts import redirect, render, get_object_or_404
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.files import File
+from django.conf import settings
+from django.contrib.auth.hashers import check_password
+from django.db.models import Q
 from django.http import JsonResponse
+from django.http.response import HttpResponseRedirect, HttpResponse
+from django.views.generic import TemplateView, UpdateView, ListView, CreateView, DetailView,\
+    DeleteView, View
+from django.views.generic.edit import FormView
+from django.views.generic.detail import SingleObjectMixin
+from django.shortcuts import redirect, render, get_object_or_404
+from django.template import Context,loader
+from django.template.defaultfilters import slugify
+from django.utils.crypto import get_random_string
+
 try:
     from django.contrib.auth import get_user_model
     User = get_user_model()
 except ImportError:
     from django.contrib.auth.models import User
-from django.template.defaultfilters import slugify
+
 # from endless_pagination.views import AjaxListView
 from microurl import google_mini
-from django.conf import settings
-from datetime import datetime
-from django.contrib.auth.hashers import check_password
-from django.core.files import File
-from urllib.parse import urlparse
-from django.template import Context
-from django.template import loader
-from django.utils.crypto import get_random_string
-from django.db.models import Q
 
 from .forms import LoginForm
-from .models import (ForumCategory, Badge, Topic, STATUS, Tags, UserProfile, UserTopics,
-                     Timeline, Facebook, Google, Comment)
-from .mixins import AdminMixin, UserMixin
-from .forms import (CategoryForm, BadgeForm, RegisterForm, TopicForm,
-                    CommentForm, UserProfileForm, ChangePasswordForm,
-                    UserChangePasswordForm, ForgotPasswordForm)
-from mpcomp.facebook import GraphAPI, get_access_token_from_code
+from .models import ForumCategory, STATUS, Badge, Topic, Tags, UserProfile, UserTopics, Timeline, Facebook,\
+    Google, Comment
+from .mixins import AdminMixin, UserMixin, CanUpdateTopicMixin
+from .forms import CategoryForm, BadgeForm, RegisterForm, TopicForm, CommentForm, UserProfileForm,\
+    ChangePasswordForm, UserChangePasswordForm, ForgotPasswordForm
+# from mpcomp.facebook import GraphAPI, get_access_token_from_code
 from .sending_mail import Memail
 
 
@@ -234,24 +235,17 @@ class BadgeList(AdminMixin, ListView):
 
 
 class DashboardTopicList(AdminMixin, ListView):
-    model = Topic
     template_name = 'dashboard/topics.html'
-    context_object_name = 'topic_list'
-    queryset = Topic.objects.filter().order_by('-created_on')
+    context_object_name = "topic_list"
 
-    def get_context_data(self, **kwargs):
-        context = super(DashboardTopicList, self).get_context_data(**kwargs)
-        return context
-
-    def post(self, request, *args, **kwargs):
-        topic_list = self.model.objects.all()
-        if request.POST.get('search_text', ''):
-            topic_list = topic_list.filter(Q(title__icontains=request.POST.get('search_text')) | Q(
-                created_by__username__icontains=request.POST.get('search_text')))
-        per_page = request.POST.get("filter_per_page") if request.POST.get(
-            "filter_per_page") else 10
-        return render(request, self.template_name, {'topic_list': topic_list,
-                                                    "per_page": per_page})
+    def get_queryset(self):
+        queryset = Topic.objects.all()
+        search_text = self.request.POST.get('search_text')
+        if search_text:
+            queryset = queryset.filter(
+                Q(title__icontains=search_text) | Q(created_by__username__icontains=search_text)
+            )
+        return queryset
 
 
 class BadgeDetailView(AdminMixin, DetailView):
@@ -457,6 +451,8 @@ class TopicAdd(UserMixin, CreateView):
     model = Topic
     form_class = TopicForm
     template_name = "forum/new_topic.html"
+    success_url = reverse_lazy('django_simple_forum:signup')
+
 
     def get_form_kwargs(self):
         kwargs = super(TopicAdd, self).get_form_kwargs()
@@ -499,9 +495,6 @@ class TopicAdd(UserMixin, CreateView):
         data = {'error': False, 'response': 'Successfully Created Topic'}
         return JsonResponse(data)
 
-    def get_success_url(self):
-        return redirect(reverse('django_simple_forum:signup'))
-
     def form_invalid(self, form):
         return JsonResponse({'error': True, 'response': form.errors})
 
@@ -517,17 +510,53 @@ class TopicAdd(UserMixin, CreateView):
         return context
 
 
+class TopicUpdateView(CanUpdateTopicMixin, UpdateView):
+    model = Topic
+    form_class = TopicForm
+    template_name = "forum/new_topic.html"
+
+    def get_initial(self):
+        initital = super(TopicUpdateView, self).get_initial();
+        topic = self.get_object()
+        tags = [tag.title for tag in topic.tags.all()]
+        initital.update({
+            "tags": ",".join(tags)    
+        })
+        return initital
+
+    def form_valid(self, form):
+        topic = self.get_object()
+        old_tags = [tag.title for tag in topic.tags.all()]
+        topic = form.save()
+        tags_text = form.cleaned_data['tags']
+        if tags_text:
+            new_tags = tags_text.split(',')
+            remove_tags = set(new_tags) - set(old_tags)
+            for tag in new_tags:
+                tag_slug = slugify(tag)
+                if not Tags.objects.filter(slug=tag_slug).exists():
+                    tag = Tags.objects.create(slug=tag_slug, title=tag)
+                    topic.tags.add(tag)
+                else:
+                    tag = Tags.objects.filter(slug=tag_slug).first()
+                    if tag.title in remove_tags:
+                        topic.remove(tag)
+                    else:
+                        topic.tags.add(tag)
+        topic.save()
+        return JsonResponse({"error": False, "success_url": reverse('django_simple_forum:signup')})
+
+
+
+
+
 class TopicList(ListView):
-    queryset = Topic.objects.filter(status='Published').order_by('-created_on')
     template_name = 'forum/topic_list.html'
     context_object_name = "topic_list"
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
-            if request.user.is_superuser:
-                return HttpResponseRedirect(reverse('django_simple_forum:dashboard'))
-        return super(TopicList, self).dispatch(request, *args, **kwargs)
-
+    def get_queryset(self):
+        queryset = Topic.objects.filter(Q(status='Published')|Q(created_by=self.request.user)).order_by('-created_on')
+        return queryset
 
 class TopicView(TemplateView):
     template_name = 'forum/view_topic.html'
@@ -552,6 +581,26 @@ class TopicView(TemplateView):
         context['minified_url'] = minified_url
         context['suggested_topics'] = suggested_topics
         return context
+
+
+class TopicDeleteView(CanUpdateTopicMixin, DeleteView):
+    model = Topic
+    template_name = "forum/topic_delete.html"
+    success_url = reverse_lazy("django_simple_forum:topic_list")
+
+    def get_object(self):
+        if not hasattr(self, "object"):
+            self.object = super(TopicDeleteView, self).get_object()
+        return self.object
+
+    def delete(self, request, *args, **kwargs):
+        if request.is_ajax():
+            self.object = self.get_object() 
+            self.object.delete()
+            return JsonResponse({"error": False, "message": "deleted"})
+        else:
+            return super(TopicDeleteView, self).delete(request, *args, **kwargs)
+
 
 
 def comment_mentioned_users_list(data):
@@ -762,48 +811,22 @@ class ForumBadgeList(ListView):
 
 
 class ForumCategoryView(ListView):
-    model = Topic
     template_name = 'forum/topic_list.html'
 
-    def get_object(self):
-        return get_object_or_404(ForumCategory, slug=self.kwargs['slug'])
-
-    def get_context_data(self, **kwargs):
-        context = super(ForumCategoryView, self).get_context_data(**kwargs)
-        topics = self.get_object().get_topics()
-        context['topic_list'] = topics
-        return context
+    def get_queryset(self, queryset=None):
+        category = get_object_or_404(ForumCategory, slug=self.kwargs.get("slug"))
+        topics = category.topic_set.filter(Q(status="Published")|Q(created_by=self.request.user)) 
+        return topics
 
 
 class ForumTagsView(ListView):
-    model = Topic
     template_name = 'forum/topic_list.html'
-
-    def get_object(self):
-        return get_object_or_404(Tags, slug=self.kwargs['slug'])
 
     def get_context_data(self, **kwargs):
         context = super(ForumTagsView, self).get_context_data(**kwargs)
         topics = self.get_object().get_topics()
         context['topic_list'] = topics
         return context
-
-
-class DashboardTopicDelete(AdminMixin, DeleteView):
-    model = Topic
-    slug_field = 'slug'
-    template_name = "dashboard/topic.html"
-
-    def get_object(self):
-        return Topic.objects.filter(slug=self.kwargs['slug'])
-
-    def get_success_url(self):
-        return redirect(reverse('django_simple_forum:badges'))
-
-    def post(self, request, *args, **kwargs):
-        topic = self.get_object()
-        topic.delete()
-        return JsonResponse({'error': False, 'response': 'Successfully Deleted Topic'})
 
 
 class TopicDetail(AdminMixin, TemplateView):

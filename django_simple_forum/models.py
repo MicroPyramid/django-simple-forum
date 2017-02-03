@@ -5,15 +5,16 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 import hashlib
 from datetime import datetime
 
-STATUS = (
-    ('Draft', 'Draft'),
-    ('Published', 'Published'),
-    ('Disabled', 'Disabled'),
-)
 
 USER_ROLES = (
     ('Admin', 'Admin'),
     ('Publisher', 'Publisher'),
+)
+
+STATUS = (
+    ('Draft', 'Draft'),
+    ('Published', 'Published'),
+    ('Disabled', 'Disabled'),
 )
 
 User = settings.AUTH_USER_MODEL
@@ -119,12 +120,15 @@ class ForumCategory(models.Model):
     description = models.TextField()
     parent = models.ForeignKey('self', blank=True, null=True)
 
-    def get_topics(self):
-        topics = Topic.objects.filter(category=self, status='Published')
-        return topics
+    # def get_topics(self):
+    #     topics = Topic.objects.filter(category=self, status='Published')
+    #     return topics
 
+    def __str__(self):
+        return self.title
 
 class Topic(models.Model):
+
     title = models.CharField(max_length=2000)
     description = models.TextField()
     created_by = models.ForeignKey(User)
@@ -162,6 +166,9 @@ class Topic(models.Model):
     def get_total_of_votes(self):
         no_of_votes = self.no_of_votes + self.no_of_down_votes
         return no_of_votes
+
+    def __str__(self):
+        return self.title
 
 
 # user followed topics

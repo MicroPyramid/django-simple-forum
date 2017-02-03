@@ -1,0 +1,11 @@
+{% extends 'forum/base.html' %}
+
+{% block stage %}
+	<form action="" method="POST">
+		{% csrf_token %}
+		<p>
+			Are you sure you want to delete Topic <b>"{{ object }}"</b> in category <b>{{ topic.category }}</b> ?
+		</p>
+		<input type="submit" name="">
+	</form>
+{% endblock %}

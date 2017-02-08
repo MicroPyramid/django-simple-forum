@@ -12,7 +12,7 @@ register = template.Library()
 
 @register.assignment_tag()
 def get_categories():
-    all_categories = ForumCategory.objects.annotate(num_topics=Count('topic')).order_by('-num_topics')[:10]
+    all_categories = ForumCategory.objects.filter(is_active=True).annotate(num_topics=Count('topic')).order_by('-num_topics')[:10]
     return all_categories
 
 

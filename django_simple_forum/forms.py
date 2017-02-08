@@ -90,19 +90,25 @@ class BadgeForm(forms.ModelForm):
 
 class TopicForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(TopicForm, self).__init__(*args, **kwargs)
+        self.fields["category"].widget.attrs = {"class": "form-control select2"}
+        self.fields["title"].widget.attrs = {"class": "form-control"}
+        self.fields["tags"].widget.attrs = {"class": "form-control tags"}
+
+    tags = forms.CharField(required=False)
+
     class Meta:
         model = Topic
-        exclude = ('slug', 'no_of_views', 'status', 'created_by', 'no_of_likes', 'no_of_votes', 'no_of_down_votes', 'tags')
-
+        fields = ("title", "category", "description", "tags")
+    
     def clean_title(self):
         if Topic.objects.filter(slug=slugify(self.cleaned_data['title'])).exclude(id=self.instance.id):
             raise forms.ValidationError('Topic with this Name already exists.')
 
         return self.cleaned_data['title']
 
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super(TopicForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
         instance = super(TopicForm, self).save(commit=False)
@@ -137,7 +143,6 @@ class CommentForm(forms.ModelForm):
         instance = super(CommentForm, self).save(commit=False)
         instance.comment = self.cleaned_data['comment']
         instance.topic = self.cleaned_data['topic']
-        print (self.cleaned_data)
         if not self.instance.id:
             instance.commented_by = self.user
             if 'parent' in self.cleaned_data.keys() and self.cleaned_data['parent']:

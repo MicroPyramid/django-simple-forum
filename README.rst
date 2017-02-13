@@ -82,6 +82,7 @@ You can view the complete documentation here. `Documentation`_
 
 We are always looking to help you customize the whole or part of the code as you like.
 
+Visit our Django Page `Here`_
 
 We welcome your feedback and support, raise `github ticket`_ if you want to report a bug. Need new features? `Contact us here`_
 
@@ -94,3 +95,4 @@ mailto:: "hello@micropyramid.com"
 .. _github ticket: https://github.com/MicroPyramid/django-simple-forum/issues
 .. _django simple forum: https://micropyramid.com/oss/
 .. _Micropyramid Repository: https://github.com/MicroPyramid/django-simple-forum.git
+.. _Here: https://micropyramid.com/django-development-services/

@@ -1,0 +1,95 @@
+{% extends 'dashboard/dashboard_base.html' %}
+{% block stage %}
+<div class="content">
+	<div class="new">
+	 <div class="new-header">
+	    <label>{% if category %}Edit{% else %}New{% endif %} Category</label>
+	  </div>
+	  <div class="new-user">
+	    <form class="form-horizontal" name="categoryform" id="categoryform" method='post'>
+	      <div class="form-group">
+	        <label class="control-label col-sm-2" for="email">Title:</label>
+	        <div class="col-sm-10">
+	          <input type="text" class="form-control" id="title" name="title" placeholder="Enter Category Title" value="{{category.title}}">
+	        </div>
+	      </div>
+	      <div class="form-group">
+	        <label class="control-label col-sm-2" for="email">Parent:</label>
+	        <div class="col-sm-10">
+	          <select name="parent" id="parent" class="form-control">
+	          	<option value=''>Select A Parent</option>
+	          	{% for each in menus %}
+	          		<option value="{{ each.id }}" {% if category.parent.id == each.id %}selected{% endif %}>{{ each.title }}</option>
+	          	{% endfor %}
+	          </select>
+	        </div>
+	      </div>
+	      <div class="form-group">
+	        <label class="control-label col-sm-2" for="email">Color:</label>
+	        <div class="col-sm-10">
+	          <input type="color" name="color" id="color" value="{% if category %}{{category.color}}{% else %}#090000{% endif %}">
+	        </div>
+	      </div>
+	      <div class="form-group">
+	        <label class="control-label col-sm-2" for="email">Description:</label>
+	        <div class="col-sm-10">
+	          <textarea rows="10" name="textareacontents" id='textareacontents'>{{ category.description }}</textarea>
+	          <input type="hidden" name="description" id="description" value="{{category.description}}"/>
+	        </div>
+	      </div>
+	      <div class="form-group">
+	        <div class="col-sm-offset-2 col-sm-10">
+	          <div class="checkbox">
+	            <label><input type="checkbox"  name="is_active" id="is_active" {% if category.is_active %}checked{% endif %}> Is Votable</label>
+	            <label><input type="checkbox" id="is_votable" name="is_votable" {% if category.is_votable %}checked{% endif %}> Is Active</label>
+	          </div>
+	        </div>
+	      </div>
+	      <div class="form-group">
+	        <div class="col-sm-offset-2 col-sm-10 save_buttons">
+	          <button type="submit" class="btn btn-default submit">Submit</button>
+	          <button type="button" class="btn btn-default cancel">Cancel</button>
+	        </div>
+	      </div>
+	    </form>
+	  </div>
+	</div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script type="text/javascript">
+$('form#categoryform').submit(function(e){
+	e.preventDefault();
+	$("input[name='description']").val(CKEDITOR.instances.textareacontents.getData());
+	$.post('.', $('form#categoryform').serialize(), function(data){
+	      	console.log(data)
+	      	console.log(data.error)
+	        if (data.error == false) {
+	          alert(data.response);
+	          window.location = "{% url 'django_simple_forum:categories' %}";
+	        } else {
+	          $('div.error').remove();
+	          for (var key in data.response) {
+	            $('#' + key).after('<div class="error">' + data.response[key] + '</div>');
+	          }
+	        }
+	}, 'json');
+});
+$('.cancel').click(function(e){
+	window.location = "{% url 'django_simple_forum:categories' %}";
+});
+   CKEDITOR.replace( 'textareacontents',
+   {
+   // toolbar :
+   // [
+   // { name: 'basicstyles', items : [ 'Bold','Italic' ] },
+   // { name: 'paragraph', items : [ 'NumberedList','BulletedList','-','Outdent','Indent','-','Blockquote','CreateDiv',
+   // '-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock','-','BidiLtr','BidiRtl' ] },
+   // ],
+   // skin : 'office2003',
+   uiColor: '#ffffff',
+     height:260,
+   //width: 700,
+   });
+</script>
+{% endblock %}

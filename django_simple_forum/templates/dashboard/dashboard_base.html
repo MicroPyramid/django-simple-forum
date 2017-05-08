@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load compress %}
+{% load compress static %}
 <html lang="en">
 <head>
   <title>Django Simple Forum</title>
@@ -12,7 +12,7 @@
       <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
 
     {% compress css %}
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/dashboard.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
     {% endcompress %}
 </head>
 <body>
@@ -61,7 +61,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
 
     {% compress js %}
-      <script src="{{ STATIC_URL }}js/jquery.form.js"></script>
+      <script src="{% static 'js/jquery.form.js' %}"></script>
       <script type="text/javascript">
         $("a[rel='page']").click(function(e){
           e.preventDefault();

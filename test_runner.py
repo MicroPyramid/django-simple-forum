@@ -4,6 +4,7 @@ import sys
 import django
 from django.conf import settings
 from django.test.utils import get_runner
+from django.conf.urls import include, url
 
 
 if __name__ == "__main__":
@@ -15,14 +16,15 @@ if __name__ == "__main__":
             }
         },
         INSTALLED_APPS=(
-                        'django.contrib.auth',
-                        'django.contrib.contenttypes',
-                        'django.contrib.sessions',
-                        'django.contrib.staticfiles',
-                        'sorl.thumbnail',
-                        #'simple_pagination',
-                        'django_simple_forum',
-                        ),
+            'django.contrib.auth',
+            'django.contrib.contenttypes',
+            'django.contrib.sessions',
+            'django.contrib.staticfiles',
+            'sorl.thumbnail',
+            'simple_pagination',
+            'compressor',
+            'django_simple_forum',
+        ),
         MIDDLEWARE_CLASSES=(
             'django.contrib.sessions.middleware.SessionMiddleware',
             'django.middleware.common.CommonMiddleware',
@@ -30,9 +32,14 @@ if __name__ == "__main__":
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
         ),
-        ROOT_URLCONF='django_simple_forum.urls',
+        ROOT_URLCONF='test_runner',
         STATIC_URL='/static/',
-        STATIC_ROOT=(BASE_DIR + '/static',),
+        STATIC_ROOT=BASE_DIR + '/static',
+        STATICFILES_FINDERS=[
+            'django.contrib.staticfiles.finders.FileSystemFinder',
+            'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+            'compressor.finders.CompressorFinder',
+        ],
         TEMPLATES=[
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -55,3 +62,8 @@ if __name__ == "__main__":
     test_runner = TestRunner()
     failures = test_runner.run_tests(["django_simple_forum"])
     sys.exit(bool(failures))
+
+
+urlpatterns = [
+    url(r'^', include('django_simple_forum.urls', namespace='django_simple_forum')),
+]

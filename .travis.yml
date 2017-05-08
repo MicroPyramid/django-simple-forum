@@ -5,7 +5,7 @@ python:
 
 install:
   - python setup.py install
-  - pip install coveralls
+  -  pip install -r requirements.txt
 
 script:
   - coverage run --source=django_simple_forum  test_runner.py test

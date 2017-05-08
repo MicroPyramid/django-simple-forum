@@ -53,28 +53,31 @@ class LoginView(FormView):
     template_name = 'dashboard/dashboard_login.html'
     form_class = LoginForm
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            if request.user.is_superuser:
+                return redirect('django_simple_forum:dashboard')
+            else:
+                return redirect('django_simple_forum:topic_list')
+        return super(LoginView, self).dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         user = form.get_user()
         if user.is_superuser:
             login(self.request, form.get_user())
             data = {
-                'error': False, 'response': 'You have successfully logged into the dashboard'}
+                'error': False,
+                'response': 'You have successfully logged into the dashboard'
+            }
         else:
             data = {
-                'error': True, 'response': 'You dont have access to login to dashboard'}
+                'error': True,
+                'response': 'You dont have access to login to dashboard'
+            }
         return JsonResponse(data)
 
-    def get_success_url(self):
-        return redirect(reverse('django_simple_forum:dashboard'))
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
-            if request.user.is_superuser:
-                template_name = 'dashboard/dashboard.html'
-                return render(request, template_name)
-            else:
-                return HttpResponseRedirect(reverse('django_simple_forum:topic_list'))
-        return super(LoginView, self).dispatch(request, *args, **kwargs)
+    def form_invalid(self, form):
+        return JsonResponse({'error': True, 'response': form.errors})
 
 
 class DashboardView(AdminMixin, TemplateView):
@@ -105,7 +108,7 @@ class CategoryList(AdminMixin, ListView):
         categories_list = self.model.objects.all()
 
         if request.POST.get('is_active') == 'True':
-            categories_list = categories_list.filter(status=True)
+            categories_list = categories_list.filter(is_active=True)
         if request.POST.get('search_text', ''):
             categories_list = categories_list.filter(
                 title__icontains=request.POST.get('search_text')
@@ -148,7 +151,7 @@ class CategoryAdd(AdminMixin, CreateView):
 
     def form_invalid(self, form):
         data = {'error': True, 'response': form.errors}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
     def get_context_data(self, **kwargs):
         context = super(CategoryAdd, self).get_context_data(**kwargs)

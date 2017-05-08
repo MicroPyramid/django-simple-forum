@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load compress %}
+{% load compress static %}
 <html lang="en">
 <head>
   <title>Django Simple Forum</title>
@@ -10,7 +10,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
   {% compress css %}
-  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/login.css">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
   {% endcompress %}
 </head>
 <body>

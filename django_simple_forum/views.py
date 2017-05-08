@@ -372,10 +372,10 @@ class DashboardUserEdit(AdminMixin, UpdateView):
     def get_object(self):
         return get_object_or_404(UserProfile, user_id=self.kwargs['user_id'])
 
-    def get_form_kwargs(self):
-        kwargs = super(DashboardUserEdit, self).get_form_kwargs()
-        kwargs.update({'user': self.request.user})
-        return kwargs
+    # def get_form_kwargs(self):
+    #     kwargs = super(DashboardUserEdit, self).get_form_kwargs()
+    #     kwargs.update({'user': self.request.user})
+    #     return kwargs
 
     def form_valid(self, form):
         user_profile = form.save()
@@ -407,7 +407,7 @@ class IndexView(FormView):
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
         topics = Topic.objects.filter(status='Published')
-        context['topics'] = topics
+        context['topic_list'] = topics
         return context
 
     def form_valid(self, form):
@@ -438,7 +438,7 @@ class ForumLoginView(FormView):
     def get_context_data(self, **kwargs):
         context = super(ForumLoginView, self).get_context_data(**kwargs)
         topics = Topic.objects.filter(status='Published')
-        context['topics'] = topics
+        context['topic_list'] = topics
         return context
 
     def form_valid(self, form):
@@ -455,7 +455,6 @@ class TopicAdd(LoginRequiredMixin, CreateView):
     form_class = TopicForm
     template_name = "forum/new_topic.html"
     success_url = reverse_lazy('django_simple_forum:signup')
-
 
     def get_form_kwargs(self):
         kwargs = super(TopicAdd, self).get_form_kwargs()
@@ -548,6 +547,9 @@ class TopicUpdateView(CanUpdateTopicMixin, UpdateView):
                         topic.tags.add(tag)
         topic.save()
         return JsonResponse({"error": False, "success_url": reverse('django_simple_forum:signup')})
+
+    def form_invalid(self, form):
+        return JsonResponse({'error': True, 'errors': form.errors})
 
 
 class TopicList(ListView):

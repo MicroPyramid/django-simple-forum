@@ -55,6 +55,11 @@ if __name__ == "__main__":
                 },
             },
         ],
+        ALLOWED_HOSTS=[
+            'django-forum.com',
+        ],
+        HOST_URL='http://django-forum.com',
+        MAIL_SENDER=None
     )
 
     django.setup()

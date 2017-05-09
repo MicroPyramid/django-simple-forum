@@ -675,9 +675,9 @@ class CommentAdd(LoginRequiredMixin, CreateView):
 
         for user in comment.topic.get_topic_users():
             mto = [user.user.email]
-            c = Context({'comment': comment, "user": user.user,
-                         'topic_url': settings.HOST_URL+reverse('django_simple_forum:view_topic', kwargs={'slug': comment.topic.slug}),
-                         "HOST_URL": settings.HOST_URL})
+            c = {'comment': comment, "user": user.user,
+                 'topic_url': settings.HOST_URL+reverse('django_simple_forum:view_topic', kwargs={'slug': comment.topic.slug}),
+                 "HOST_URL": settings.HOST_URL}
             t = loader.get_template('emails/comment_add.html')
             subject = "New Comment For The Topic " + (comment.topic.title)
             rendered = t.render(c)
@@ -755,7 +755,7 @@ class CommentEdit(LoginRequiredMixin, UpdateView):
         return JsonResponse({'error': True, 'response': form.errors})
 
     def get_context_data(self, **kwargs):
-        context = super(DashboardUserEdit, self).get_context_data(**kwargs)
+        context = super(CommentEdit, self).get_context_data(**kwargs)
         form = CommentForm(self.request.GET)
         context['form'] = form
         return context
@@ -896,9 +896,6 @@ class TopicStatus(AdminMixin, View):
     def get_object(self):
         return get_object_or_404(Topic, slug=self.kwargs['slug'])
 
-    def get_success_url(self):
-        return redirect(reverse('django_simple_forum:topics'))
-
     def post(self, request, *args, **kwargs):
         topic = self.get_object()
         if topic.status == 'Draft':
@@ -975,9 +972,6 @@ class TopicFollow(LoginRequiredMixin, View):
     def get_object(self):
         return get_object_or_404(Topic, slug=self.kwargs['slug'])
 
-    def get_success_url(self):
-        return redirect(reverse('django_simple_forum:topic_list'))
-
     def post(self, request, *args, **kwargs):
         topic = self.get_object()
         user_topics = UserTopics.objects.filter(user=request.user, topic=topic)
@@ -1044,12 +1038,18 @@ class ChangePassword(AdminMixin, FormView):
     def form_valid(self, form):
         user = self.request.user
         if not check_password(self.request.POST['oldpassword'], user.password):
-            return HttpResponse(json.dumps({'error': True, 'response': {'oldpassword': 'Invalid old password'}}))
+            return JsonResponse({
+                'error': True,
+                'response': {'oldpassword': 'Invalid old password'}
+            })
         if self.request.POST['newpassword'] != self.request.POST['retypepassword']:
-            return HttpResponse(json.dumps({'error': True, 'response': {'newpassword': 'New password and Confirm Passwords did not match'}}))
+            return JsonResponse({
+                'error': True,
+                'response': {'newpassword': 'New password and Confirm Passwords did not match'}
+            })
         user.set_password(self.request.POST['newpassword'])
         user.save()
-        return HttpResponse(json.dumps({'error': False, 'message': 'Password changed successfully'}))
+        return JsonResponse({'error': False, 'message': 'Password changed successfully'})
 
     def form_invalid(self, form):
         return JsonResponse({'error': True, 'response': form.errors})
@@ -1321,8 +1321,7 @@ def get_mentioned_user(request, topic_id):
             # data['avatar'] = user.profile_pic.url if user.profile_pic else ''
             data['fullname'] = user.user.email
             list_data.append(data)
-    return HttpResponse(
-        json.dumps({'data': list_data}), content_type="application/json")
+    return JsonResponse({'data': list_data})
 
 
 def comment_mentioned_users_list(data):
@@ -1339,10 +1338,18 @@ class UserChangePassword(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         user = self.request.user
         if self.request.POST['newpassword'] != self.request.POST['retypepassword']:
-            return HttpResponse(json.dumps({'error': True, 'response': {'newpassword': 'New password and Confirm Passwords did not match'}}))
+            return JsonResponse({
+                'error': True,
+                'response': {
+                    'newpassword': 'New password and Confirm Passwords did not match'
+                }
+            })
         user.set_password(self.request.POST['newpassword'])
         user.save()
-        return HttpResponse(json.dumps({'error': False, 'message': 'Password changed successfully'}))
+        return JsonResponse({
+            'error': False,
+            'message': 'Password changed successfully'
+        })
 
     def form_invalid(self, form):
         return JsonResponse({'error': True, 'response': form.errors})
@@ -1363,16 +1370,16 @@ class ForgotPasswordView(FormView):
                 settings.HOST_URL + '/forum/">forum</a></p>'
             to = user.email
             from_email = settings.DEFAULT_FROM_EMAIL
-            Memail(to, from_email, subject, message)
+            Memail([to], from_email, subject, message, email_template_name=None, context=None)
             user.set_password(password)
             user.save()
             data = {
                 "error": False, "response": "An Email is sent to the entered email id"}
-            return HttpResponse(json.dumps(data))
+            return JsonResponse(data)
         else:
             data = {
                 "error": True, "message": "User With this email id doesn't exists!!!"}
-            return HttpResponse(json.dumps(data))
+            return JsonResponse(data)
 
     def form_invalid(self, form):
         return JsonResponse({'error': True, 'response': form.errors})

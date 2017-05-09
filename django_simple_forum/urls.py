@@ -17,7 +17,7 @@ urlpatterns = [
     url(r'^topic/votes/(?P<slug>[-\w]+)/down/$', views.TopicVoteDownView.as_view(), name="topic_vote_down"),
 
     url(r'^mentioned-users/(?P<topic_id>[-\w]+)/$', views.get_mentioned_user, name="get_mentioned_user"),
-    url(r'^user/profile/(?P<user_name>[-\w]+)/$', views.ProfileView.as_view(), name="view_profile"),
+    url(r'^user/profile/(?P<user_name>[a-zA-Z0-9_.-@]+)/$', views.ProfileView.as_view(), name="view_profile"),
     url(r'^change-password/$', views.UserChangePassword.as_view(), name="user_change_password"),
     url(r'^forgot-password/$', views.ForgotPasswordView.as_view(), name="forgot_password"),
     url(r'^comment/delete/(?P<comment_id>[-\w]+)/$',

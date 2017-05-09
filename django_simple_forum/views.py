@@ -53,28 +53,31 @@ class LoginView(FormView):
     template_name = 'dashboard/dashboard_login.html'
     form_class = LoginForm
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            if request.user.is_superuser:
+                return redirect('django_simple_forum:dashboard')
+            else:
+                return redirect('django_simple_forum:topic_list')
+        return super(LoginView, self).dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         user = form.get_user()
         if user.is_superuser:
             login(self.request, form.get_user())
             data = {
-                'error': False, 'response': 'You have successfully logged into the dashboard'}
+                'error': False,
+                'response': 'You have successfully logged into the dashboard'
+            }
         else:
             data = {
-                'error': True, 'response': 'You dont have access to login to dashboard'}
+                'error': True,
+                'response': 'You dont have access to login to dashboard'
+            }
         return JsonResponse(data)
 
-    def get_success_url(self):
-        return redirect(reverse('django_simple_forum:dashboard'))
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
-            if request.user.is_superuser:
-                template_name = 'dashboard/dashboard.html'
-                return render(request, template_name)
-            else:
-                return HttpResponseRedirect(reverse('django_simple_forum:topic_list'))
-        return super(LoginView, self).dispatch(request, *args, **kwargs)
+    def form_invalid(self, form):
+        return JsonResponse({'error': True, 'response': form.errors})
 
 
 class DashboardView(AdminMixin, TemplateView):
@@ -105,7 +108,7 @@ class CategoryList(AdminMixin, ListView):
         categories_list = self.model.objects.all()
 
         if request.POST.get('is_active') == 'True':
-            categories_list = categories_list.filter(status=True)
+            categories_list = categories_list.filter(is_active=True)
         if request.POST.get('search_text', ''):
             categories_list = categories_list.filter(
                 title__icontains=request.POST.get('search_text')
@@ -148,7 +151,7 @@ class CategoryAdd(AdminMixin, CreateView):
 
     def form_invalid(self, form):
         data = {'error': True, 'response': form.errors}
-        return HttpResponse(json.dumps(data))
+        return JsonResponse(data)
 
     def get_context_data(self, **kwargs):
         context = super(CategoryAdd, self).get_context_data(**kwargs)
@@ -369,10 +372,10 @@ class DashboardUserEdit(AdminMixin, UpdateView):
     def get_object(self):
         return get_object_or_404(UserProfile, user_id=self.kwargs['user_id'])
 
-    def get_form_kwargs(self):
-        kwargs = super(DashboardUserEdit, self).get_form_kwargs()
-        kwargs.update({'user': self.request.user})
-        return kwargs
+    # def get_form_kwargs(self):
+    #     kwargs = super(DashboardUserEdit, self).get_form_kwargs()
+    #     kwargs.update({'user': self.request.user})
+    #     return kwargs
 
     def form_valid(self, form):
         user_profile = form.save()
@@ -404,7 +407,7 @@ class IndexView(FormView):
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
         topics = Topic.objects.filter(status='Published')
-        context['topics'] = topics
+        context['topic_list'] = topics
         return context
 
     def form_valid(self, form):
@@ -435,7 +438,7 @@ class ForumLoginView(FormView):
     def get_context_data(self, **kwargs):
         context = super(ForumLoginView, self).get_context_data(**kwargs)
         topics = Topic.objects.filter(status='Published')
-        context['topics'] = topics
+        context['topic_list'] = topics
         return context
 
     def form_valid(self, form):
@@ -452,7 +455,6 @@ class TopicAdd(LoginRequiredMixin, CreateView):
     form_class = TopicForm
     template_name = "forum/new_topic.html"
     success_url = reverse_lazy('django_simple_forum:signup')
-
 
     def get_form_kwargs(self):
         kwargs = super(TopicAdd, self).get_form_kwargs()
@@ -545,6 +547,9 @@ class TopicUpdateView(CanUpdateTopicMixin, UpdateView):
                         topic.tags.add(tag)
         topic.save()
         return JsonResponse({"error": False, "success_url": reverse('django_simple_forum:signup')})
+
+    def form_invalid(self, form):
+        return JsonResponse({'error': True, 'errors': form.errors})
 
 
 class TopicList(ListView):
@@ -670,9 +675,9 @@ class CommentAdd(LoginRequiredMixin, CreateView):
 
         for user in comment.topic.get_topic_users():
             mto = [user.user.email]
-            c = Context({'comment': comment, "user": user.user,
-                         'topic_url': settings.HOST_URL+reverse('django_simple_forum:view_topic', kwargs={'slug': comment.topic.slug}),
-                         "HOST_URL": settings.HOST_URL})
+            c = {'comment': comment, "user": user.user,
+                 'topic_url': settings.HOST_URL+reverse('django_simple_forum:view_topic', kwargs={'slug': comment.topic.slug}),
+                 "HOST_URL": settings.HOST_URL}
             t = loader.get_template('emails/comment_add.html')
             subject = "New Comment For The Topic " + (comment.topic.title)
             rendered = t.render(c)
@@ -750,7 +755,7 @@ class CommentEdit(LoginRequiredMixin, UpdateView):
         return JsonResponse({'error': True, 'response': form.errors})
 
     def get_context_data(self, **kwargs):
-        context = super(DashboardUserEdit, self).get_context_data(**kwargs)
+        context = super(CommentEdit, self).get_context_data(**kwargs)
         form = CommentForm(self.request.GET)
         context['form'] = form
         return context
@@ -891,9 +896,6 @@ class TopicStatus(AdminMixin, View):
     def get_object(self):
         return get_object_or_404(Topic, slug=self.kwargs['slug'])
 
-    def get_success_url(self):
-        return redirect(reverse('django_simple_forum:topics'))
-
     def post(self, request, *args, **kwargs):
         topic = self.get_object()
         if topic.status == 'Draft':
@@ -970,9 +972,6 @@ class TopicFollow(LoginRequiredMixin, View):
     def get_object(self):
         return get_object_or_404(Topic, slug=self.kwargs['slug'])
 
-    def get_success_url(self):
-        return redirect(reverse('django_simple_forum:topic_list'))
-
     def post(self, request, *args, **kwargs):
         topic = self.get_object()
         user_topics = UserTopics.objects.filter(user=request.user, topic=topic)
@@ -1039,12 +1038,18 @@ class ChangePassword(AdminMixin, FormView):
     def form_valid(self, form):
         user = self.request.user
         if not check_password(self.request.POST['oldpassword'], user.password):
-            return HttpResponse(json.dumps({'error': True, 'response': {'oldpassword': 'Invalid old password'}}))
+            return JsonResponse({
+                'error': True,
+                'response': {'oldpassword': 'Invalid old password'}
+            })
         if self.request.POST['newpassword'] != self.request.POST['retypepassword']:
-            return HttpResponse(json.dumps({'error': True, 'response': {'newpassword': 'New password and Confirm Passwords did not match'}}))
+            return JsonResponse({
+                'error': True,
+                'response': {'newpassword': 'New password and Confirm Passwords did not match'}
+            })
         user.set_password(self.request.POST['newpassword'])
         user.save()
-        return HttpResponse(json.dumps({'error': False, 'message': 'Password changed successfully'}))
+        return JsonResponse({'error': False, 'message': 'Password changed successfully'})
 
     def form_invalid(self, form):
         return JsonResponse({'error': True, 'response': form.errors})
@@ -1316,8 +1321,7 @@ def get_mentioned_user(request, topic_id):
             # data['avatar'] = user.profile_pic.url if user.profile_pic else ''
             data['fullname'] = user.user.email
             list_data.append(data)
-    return HttpResponse(
-        json.dumps({'data': list_data}), content_type="application/json")
+    return JsonResponse({'data': list_data})
 
 
 def comment_mentioned_users_list(data):
@@ -1334,10 +1338,18 @@ class UserChangePassword(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         user = self.request.user
         if self.request.POST['newpassword'] != self.request.POST['retypepassword']:
-            return HttpResponse(json.dumps({'error': True, 'response': {'newpassword': 'New password and Confirm Passwords did not match'}}))
+            return JsonResponse({
+                'error': True,
+                'response': {
+                    'newpassword': 'New password and Confirm Passwords did not match'
+                }
+            })
         user.set_password(self.request.POST['newpassword'])
         user.save()
-        return HttpResponse(json.dumps({'error': False, 'message': 'Password changed successfully'}))
+        return JsonResponse({
+            'error': False,
+            'message': 'Password changed successfully'
+        })
 
     def form_invalid(self, form):
         return JsonResponse({'error': True, 'response': form.errors})
@@ -1358,16 +1370,16 @@ class ForgotPasswordView(FormView):
                 settings.HOST_URL + '/forum/">forum</a></p>'
             to = user.email
             from_email = settings.DEFAULT_FROM_EMAIL
-            Memail(to, from_email, subject, message)
+            Memail([to], from_email, subject, message, email_template_name=None, context=None)
             user.set_password(password)
             user.save()
             data = {
                 "error": False, "response": "An Email is sent to the entered email id"}
-            return HttpResponse(json.dumps(data))
+            return JsonResponse(data)
         else:
             data = {
                 "error": True, "message": "User With this email id doesn't exists!!!"}
-            return HttpResponse(json.dumps(data))
+            return JsonResponse(data)
 
     def form_invalid(self, form):
         return JsonResponse({'error': True, 'response': form.errors})

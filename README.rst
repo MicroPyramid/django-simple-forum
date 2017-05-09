@@ -7,6 +7,14 @@ django-simple-forum:
 .. image:: https://travis-ci.org/MicroPyramid/django-simple-forum.svg?branch=master
    :target: https://travis-ci.org/MicroPyramid/django-simple-forum
 
+.. image:: https://img.shields.io/pypi/dm/django-simple-forum.svg
+    :target: https://pypi.python.org/pypi/django-simple-forum
+    :alt: Downloads
+
+.. image:: https://img.shields.io/pypi/v/django-simple-forum.svg
+    :target: https://pypi.python.org/pypi/django-simple-forum
+    :alt: Latest Release
+
 .. image:: https://coveralls.io/repos/github/MicroPyramid/django-simple-forum/badge.svg?branch=master
    :target: https://coveralls.io/github/MicroPyramid/django-simple-forum?branch=master
 
@@ -16,6 +24,7 @@ django-simple-forum:
 
 .. image:: https://img.shields.io/github/license/micropyramid/django-simple-forum.svg
     :target: https://pypi.python.org/pypi/django-simple-forum/
+    :alt: Latest Release
 
 
 Introduction:

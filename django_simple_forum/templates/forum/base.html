@@ -1,7 +1,5 @@
 {% load compress %}
-{% load static %}
-{% load forum_tags %}
-{% load thumbnail %}
+{% load static forum_tags thumbnail %}
 <!DOCTYPE html>
 <html lang="en">
    <head>
@@ -14,9 +12,9 @@
       <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
 
       {% compress css %}
-      <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/jquery.tagsinput.css" />
-      <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/forum.css">
-      <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-suggest.css">
+      <link rel="stylesheet" type="text/css" href="{% static 'css/jquery.tagsinput.css' %}" />
+      <link rel="stylesheet" type="text/css" href="{% static 'css/forum.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-suggest.css' %}">
       {% endcompress %}
    </head>
    <body>
@@ -206,8 +204,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
 
     {% compress js %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.tagsinput.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-suggest.js"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.tagsinput.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap-suggest.js' %}"></script>
    <!-- select2 -->
    <script>
     $( document ).ready(function() {

@@ -1,1 +1,2 @@
-web: sh -c 'cd sandbox && gunicorn test_django_simple_forum.wsgi && pip install -r requirements.txt'
+web: sh -c 'pip install -r sandbox/requirements.txt'
+web: sh -c 'gunicorn sandbox/test_django_simple_forum.wsgi'

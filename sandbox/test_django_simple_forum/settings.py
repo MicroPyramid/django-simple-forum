@@ -78,11 +78,12 @@ WSGI_APPLICATION = 'test_django_simple_forum.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+   'default': dj_database_url.config(
+       default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
+   )
 }
 
 
@@ -104,10 +105,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = "static"
 
 GP_CLIENT_ID = ""
 GP_CLIENT_SECRET = ""
 
 FB_APP_ID = ""
 FB_SECRET = ""
+
+
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
+STATIC_ROOT = (os.path.join(BASE_DIR, "static"))

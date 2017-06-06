@@ -1,7 +1,9 @@
-import json
 import urllib
 import requests
-from urllib.parse import urlparse
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 from datetime import datetime
 
 from django.contrib.auth import logout, login, load_backend

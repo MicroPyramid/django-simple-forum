@@ -20,3 +20,4 @@ rjsmin==1.0.12
 sendgrid==4.0.0
 six==1.10.0
 sorl-thumbnail==12.3
+-r sandbox/requirements.txt

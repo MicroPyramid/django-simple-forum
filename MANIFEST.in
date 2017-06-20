@@ -1,2 +1,5 @@
 include README.rst
-recursive-include django_simple_forum/templates *
+recursive-include django_simple_forum/templates/dashboard *
+recursive-include django_simple_forum/templates/emails *
+recursive-include django_simple_forum/templates/forum *
+recursive-include django_simple_forum/static *

@@ -62,6 +62,7 @@
             <div class="row login_row">
               <div class="login_form col-md-7">
                   <form name="loginform" id="loginform" method="post">
+                     {% csrf_token %}
                     <div class="form-group">
                       <label for="exampleInputEmail1">Email address</label>
                       <input type="email" class="form-control" placeholder="Email" id="username" name="username">
@@ -103,6 +104,7 @@
             <div class="row login_row">
               <div class="login_form col-md-7">
                   <form name="registerform" id="registerform" method="post">
+                     {% csrf_token %}
                     <div class="form-group">
                       <label for="exampleInputEmail1">Email address</label>
                       <input type="email" class="form-control" placeholder="Email" name='email' id="email">
@@ -149,6 +151,7 @@
             <div class="row login_row">
               <div class="login_form col-md-12">
                   <form name="forgotpasswordform" id="forgotpasswordform" method='post'>
+                     {% csrf_token %}
                     <div class="form-group">
                       <label for="exampleInputEmail1">Email address</label>
                       <input type="email" class="form-control" placeholder="Email" name="email" id="forgot-email">
@@ -175,6 +178,7 @@
             <div class="row login_row">
               <div class="login_form col-md-12">
                   <form name="changepasswordform" id="changepasswordform" method='post'>
+                     {% csrf_token %}
                     <div class="form-group">
                       <label for="exampleInputEmail1">New Password</label>
                       <input type="password" class="form-control" placeholder="Enter Your New Password Here" name="newpassword" id="newpassword">

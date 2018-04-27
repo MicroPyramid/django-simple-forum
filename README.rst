@@ -94,7 +94,7 @@ You can try it by hosting on your own or deploy to Heroku with a button click.
 Deploy To Heroku:
 
 .. image:: https://www.herokucdn.com/deploy/button.svg
-   :target: https://heroku.com/deploy?template=https://github.com/ntbrown/django-simple-forum/
+   :target: https://heroku.com/deploy?template=https://github.com/MicroPyramid/django-simple-forum/
 
 
 We are always looking to help you customize the whole or part of the code as you like.

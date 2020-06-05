@@ -2,7 +2,7 @@ appdirs==1.4.3
 boto==2.46.1
 coverage==4.4
 coveralls==1.1
-Django==1.11.21
+Django==1.11.29
 django-appconf==1.0.2
 django-compressor==2.1.1
 django-ses-gateway==0.1.1
